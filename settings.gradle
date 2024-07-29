@@ -1,0 +1,22 @@
+pluginManagement {
+    plugins {
+        id 'io.freefair.lombok' version '6.5.1'
+    }
+}
+
+plugins {
+    id 'org.ajoberstar.reckon.settings' version '0.18.3'
+    id 'eu.xenit.enterprise-conventions.oss' version '0.5.1'
+}
+
+rootProject.name = 'contentgrid-configuration-discovery'
+include 'contentgrid-configuration-api'
+include 'contentgrid-configuration-applications'
+include 'contentgrid-configuration-kubernetes-fabric8'
+
+reckon {
+    defaultInferredScope = 'patch'
+    snapshots()
+    scopeCalc = calcScopeFromCommitMessages()
+    stageCalc = { inventory, targetNormal -> java.util.Optional.empty() }
+}
