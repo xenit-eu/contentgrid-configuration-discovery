@@ -1,5 +1,7 @@
 package com.contentgrid.configuration.api.lookup;
 
+import com.contentgrid.configuration.api.observable.Observable;
+import com.contentgrid.configuration.api.observable.Observer;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -23,7 +25,7 @@ import lombok.experimental.Delegate;
  * @param <V> the type of the stored values
  */
 @RequiredArgsConstructor(access = AccessLevel.PROTECTED)
-public class ConcurrentLookup<K, V> {
+public class ConcurrentLookup<K, V> implements Observer<V> {
 
     @NonNull
     private final Function<V, K> identityFunction;
@@ -35,9 +37,15 @@ public class ConcurrentLookup<K, V> {
         this(identityFunction, new ReentrantReadWriteLock());
     }
 
+    public ConcurrentLookup(Function<V, K> identityFunction, Observable<V> observable) {
+        this(identityFunction);
+        subscribe(observable);
+    }
+
     private final Set<Index<?, V>> indices = new HashSet<>();
 
     private final Map<K, V> data = new HashMap<>();
+
 
     public final V add(@NonNull V item) {
         var id = Objects.requireNonNull(this.identityFunction.apply(item), "identity(%s) is null".formatted(item));
@@ -158,6 +166,16 @@ public class ConcurrentLookup<K, V> {
 
     public Stream<V> stream() {
         return this.data.values().stream();
+    }
+
+    @Override
+    public void subscribe(Observable<V> observable) {
+        observable.observe().subscribe(event -> {
+            switch (event.getType()) {
+                case ADD, UPDATE -> add(event.getValue());
+                case REMOVE -> remove(identityFunction.apply(event.getValue()));
+            }
+        });
     }
 
     private interface Index<L, T> {

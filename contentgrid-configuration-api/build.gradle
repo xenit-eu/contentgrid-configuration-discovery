@@ -1,6 +1,7 @@
 plugins {
     id 'java-library'
     id 'io.freefair.lombok'
+    id 'io.github.reyerizo.gradle.jcstress' version '0.8.15'
 }
 
 repositories {
@@ -15,6 +16,11 @@ java {
 
 dependencies {
     api 'io.projectreactor:reactor-core:3.6.7'
+    implementation 'org.slf4j:slf4j-api:2.0.13'
+
+    testImplementation 'org.assertj:assertj-core:3.25.3'
+    testImplementation 'io.projectreactor:reactor-test:3.6.7'
+    testImplementation 'org.awaitility:awaitility:4.2.1'
 }
 
 testing {
