@@ -6,7 +6,6 @@ import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
-import org.springframework.util.Assert;
 
 @EqualsAndHashCode
 @RequiredArgsConstructor(access = AccessLevel.PRIVATE)
@@ -22,7 +21,6 @@ public class DeploymentId {
     }
 
     public static DeploymentId from(@NonNull String value) {
-        Assert.hasText(value, "'value' must not be empty");
         return new DeploymentId(value);
     }
 

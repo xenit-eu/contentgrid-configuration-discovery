@@ -2,23 +2,23 @@ package com.contentgrid.configuration.kubernetes.fabric8;
 
 import com.contentgrid.configuration.api.fragments.ConfigurationFragment;
 import com.contentgrid.configuration.api.fragments.ConfigurationFragmentFactory;
-import io.fabric8.kubernetes.api.model.ConfigMap;
 import io.fabric8.kubernetes.api.model.Secret;
 import java.util.Base64;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.function.Function;
 import lombok.RequiredArgsConstructor;
 
 @RequiredArgsConstructor
-public class SecretConfigurationFragmentFactory implements ConfigurationFragmentFactory<Secret, String, String, Map<String, String>> {
-    private final String aggregationLabel;
+public class SecretConfigurationFragmentFactory<AGG> implements ConfigurationFragmentFactory<Secret, String, AGG, Map<String, String>> {
+    private final Function<Secret, AGG> aggregationFunction;
 
 
     @Override
-    public ConfigurationFragment<String, String, Map<String, String>> createFragment(Secret fragment) {
+    public ConfigurationFragment<String, AGG, Map<String, String>> createFragment(Secret fragment) {
         return new ConfigurationFragment<>(
                 fragment.getMetadata().getUid(),
-                fragment.getMetadata().getLabels().get(aggregationLabel),
+                aggregationFunction.apply(fragment),
                 base64decode(fragment.getData())
         );
     }
