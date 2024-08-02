@@ -1,8 +1,10 @@
 package com.contentgrid.configuration.applications;
 
+import com.contentgrid.configuration.api.AggregateIdConfiguration;
 import java.util.Arrays;
 import java.util.HashSet;
 import java.util.Map;
+import java.util.Optional;
 import java.util.Set;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
@@ -30,7 +32,7 @@ public class ApplicationConfiguration {
     Set<String> corsOrigins;
 
     @UtilityClass
-    class Keys {
+    public class Keys {
 
         public static final String CLIENT_ID = "contentgrid.idp.client-id";
         public static final String CLIENT_SECRET = "contentgrid.idp.client-secret";
@@ -62,6 +64,20 @@ public class ApplicationConfiguration {
         );
     }
 
+    public AggregateIdConfiguration<ApplicationId, ApplicationConfiguration> forApplication(ApplicationId applicationId) {
+        return new AggregateIdConfiguration<>() {
+            @Override
+            public ApplicationId getAggregateId() {
+                return applicationId;
+            }
+
+            @Override
+            public Optional<ApplicationConfiguration> getConfiguration() {
+                return Optional.of(ApplicationConfiguration.this);
+            }
+        };
+    }
+
     private static <T> T merge(T a, T b) {
         if(a == null) {
             return b;
@@ -84,6 +100,12 @@ public class ApplicationConfiguration {
                 .map(String::trim)
                 .filter(Predicate.not(String::isBlank))
                 .collect(Collectors.toUnmodifiableSet());
+    }
+
+    public static class ApplicationConfigurationBuilder {
+        public AggregateIdConfiguration<ApplicationId, ApplicationConfiguration> buildForApplication(ApplicationId applicationId) {
+            return build().forApplication(applicationId);
+        }
     }
 
 }
