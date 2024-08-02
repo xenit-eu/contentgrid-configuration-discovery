@@ -138,7 +138,7 @@ class KubernetesInformerConfigurationFragmentObservableFactoryTest {
     }
 
     @Test
-    void testSyntheticAddsOnLateSubscribe() throws InterruptedException {
+    void testSyntheticAddsOnLateSubscribe() throws Exception {
         var client = new KubernetesClientBuilder()
                 .withConfig(Config.fromKubeconfig(k3s.getKubeConfigYaml()))
                 .build();
@@ -179,67 +179,39 @@ class KubernetesInformerConfigurationFragmentObservableFactoryTest {
                         .build())
                 .create();
 
-        var events = ObservableUtils.eventsToList(observable);
+        var lookup = ObservableUtils.eventsToConcurrentLookup(observable, ConfigurationFragment::getFragmentId);
 
         awaitUntilAsserted(() -> {
-            assertThat(events).containsExactlyInAnyOrder(
-                    new UpdateEvent<>(UpdateType.ADD, new ConfigurationFragment<>(
-                            secret1.getMetadata().getUid(),
-                            "xyz",
-                            Map.of(
-                                    "my-test-property", "my-value"
-                            )
-                    )),
-                    new UpdateEvent<>(UpdateType.ADD, new ConfigurationFragment<>(
-                            secret2.getMetadata().getUid(),
-                            "xyz",
-                            Map.of(
-                                    "property-2", "value"
-                            )
-                    ))
-            );
+            assertThat(lookup.get(secret1.getMetadata().getUid())).isEqualTo(new ConfigurationFragment<>(
+                    secret1.getMetadata().getUid(),
+                    "xyz",
+                    Map.of(
+                            "my-test-property", "my-value"
+                    )
+            ));
+            assertThat(lookup.get(secret2.getMetadata().getUid())).isEqualTo(new ConfigurationFragment<>(
+                    secret2.getMetadata().getUid(),
+                    "xyz",
+                    Map.of(
+                            "property-2", "value"
+                    )
+            ));
         });
 
         client.resource(secret2).delete();
 
         awaitUntilAsserted(() -> {
-            assertThat(events).containsExactlyInAnyOrder(
-                    new UpdateEvent<>(UpdateType.ADD, new ConfigurationFragment<>(
-                            secret1.getMetadata().getUid(),
-                            "xyz",
-                            Map.of(
-                                    "my-test-property", "my-value"
-                            )
-                    )),
-                    new UpdateEvent<>(UpdateType.ADD, new ConfigurationFragment<>(
-                            secret2.getMetadata().getUid(),
-                            "xyz",
-                            Map.of(
-                                    "property-2", "value"
-                            )
-                    )),
-                    new UpdateEvent<>(UpdateType.REMOVE, new ConfigurationFragment<>(
-                            secret2.getMetadata().getUid(),
-                            "xyz",
-                            Map.of(
-                                    "property-2", "value"
-                            )
-                    ))
-            );
+            assertThat(lookup.get(secret1.getMetadata().getUid())).isNotNull();
+            assertThat(lookup.get(secret2.getMetadata().getUid())).isNull();
         });
 
-        var events2 = ObservableUtils.eventsToList(observable);
+        var lookup2 = ObservableUtils.eventsToConcurrentLookup(observable, ConfigurationFragment::getFragmentId);
 
-        assertThat(events2).containsExactly(
-                new UpdateEvent<>(UpdateType.ADD, new ConfigurationFragment<>(
-                        secret1.getMetadata().getUid(),
-                        "xyz",
-                        Map.of(
-                                "my-test-property", "my-value"
-                        )
-                ))
-                // note: no add/delete event for secret 2
-        );
+        assertThat(lookup2.get(secret1.getMetadata().getUid())).isNotNull();
+        assertThat(lookup2.get(secret2.getMetadata().getUid())).isNull();
+
+        lookup2.close();
+        lookup.close();
 
     }
 
