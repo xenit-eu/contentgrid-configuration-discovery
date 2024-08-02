@@ -2,20 +2,26 @@ package com.contentgrid.configuration.api.lookup;
 
 import com.contentgrid.configuration.api.observable.Observable;
 import com.contentgrid.configuration.api.observable.Observer;
-import java.util.HashMap;
+import com.contentgrid.configuration.api.observable.Publisher;
+import java.util.Collection;
+import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.Objects;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.locks.ReadWriteLock;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
+import java.util.function.Consumer;
 import java.util.function.Function;
+import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import lombok.AccessLevel;
 import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
+import reactor.core.publisher.Flux;
 
 /**
  * A thread-safe higher level data structure that wraps a map and supports creating multiple lookup indexes. Requires an
@@ -25,13 +31,14 @@ import lombok.RequiredArgsConstructor;
  * @param <V> the type of the stored values
  */
 @RequiredArgsConstructor(access = AccessLevel.PROTECTED)
-public class ConcurrentLookup<K, V> implements Observer<V> {
+public class ConcurrentLookup<K, V> implements Observer<V>, Observable<Map.Entry<K, V>>, AutoCloseable {
 
     @NonNull
     private final Function<V, K> identityFunction;
 
     @NonNull
     private final ReadWriteLock readWriteLock;
+
 
     public ConcurrentLookup(Function<V, K> identityFunction) {
         this(identityFunction, new ReentrantReadWriteLock());
@@ -46,6 +53,11 @@ public class ConcurrentLookup<K, V> implements Observer<V> {
 
     private final Map<K, V> data = new ConcurrentHashMap<>();
 
+    private final Publisher<Map.Entry<K, V>> publisher = new Publisher<>(data::entrySet);
+
+    public Set<K> keys() {
+        return Set.copyOf(data.keySet());
+    }
 
     public final V add(@NonNull V item) {
         var id = Objects.requireNonNull(this.identityFunction.apply(item), "identity(%s) is null".formatted(item));
@@ -55,6 +67,12 @@ public class ConcurrentLookup<K, V> implements Observer<V> {
             writeLock.lock();
 
             var old = this.data.put(id, item);
+
+            if(old == null) {
+                publisher.emit(UpdateType.ADD, Map.entry(id, item));
+            } else {
+                publisher.emit(UpdateType.UPDATE, Map.entry(id, item));
+            }
 
             // update all the indices
             for (var index : this.indices) {
@@ -85,8 +103,10 @@ public class ConcurrentLookup<K, V> implements Observer<V> {
             writeLock.lock();
             var old = this.data.remove(id);
 
-            // remove the old item from the index
             if (old != null) {
+                publisher.emit(UpdateType.REMOVE, Map.entry(id, old));
+
+                // remove the old item from the index
                 for (var index : this.indices) {
                     index.remove(old);
                 }
@@ -104,12 +124,7 @@ public class ConcurrentLookup<K, V> implements Observer<V> {
 
         try {
             writeLock.lock();
-            this.data.clear();
-
-            // clear indexes
-            for (var index : this.indices) {
-                index.clear();
-            }
+            this.data.forEach((k, v) -> remove(k));
         } finally {
             writeLock.unlock();
         }
@@ -135,19 +150,25 @@ public class ConcurrentLookup<K, V> implements Observer<V> {
         }
     }
 
-    public final <L> Lookup<L, V> createLookup(Function<V, L> indexFunction) {
-        var index = new MultiIndex<>(indexFunction.andThen(Stream::of));
-        registerIndex(index);
-        return index::get;
+    private void unregisterIndex(Index<?, V> index) {
+        var writeLock = this.readWriteLock.writeLock();
+        try {
+            writeLock.lock();
+            this.indices.remove(index);
+        } finally {
+            writeLock.unlock();
+
+        }
     }
 
+    public final <L> Lookup<L, V> createLookup(Function<V, L> indexFunction) {
+        return createMultiLookup(indexFunction.andThen(Stream::of));
+    }
 
     public final <L> Lookup<L, V> createMultiLookup(Function<V, Stream<L>> indexFunction) {
-        var index = new MultiIndex<>(indexFunction);
-
+        var index = new MultiIndex<>(indexFunction, this::unregisterIndex);
         registerIndex(index);
-
-        return index::get;
+        return index;
     }
 
     public Stream<V> stream() {
@@ -164,23 +185,46 @@ public class ConcurrentLookup<K, V> implements Observer<V> {
         });
     }
 
-    private interface Index<L, T> {
+    @Override
+    public Flux<UpdateEvent<Entry<K, V>>> observe() {
+        return publisher.observe();
+    }
 
-        List<T> get(L key);
+    @Override
+    public void close() throws Exception {
+        var lock = readWriteLock.writeLock();
+        try {
+            lock.lock();
+            for (Index<?, V> index : indices) {
+                index.close();
+            }
+        } finally {
+            lock.unlock();
+        }
+    }
+
+    private interface Index<L, T> extends Lookup<L, T>, AutoCloseable {
 
         void store(T data);
 
         void remove(T data);
 
-        void clear();
     }
 
     private static class MultiIndex<L, T> implements Index<L, T> {
-        private final Map<L, Set<T>> data = new HashMap<>();
+        private final Map<L, Collection<T>> data = new ConcurrentHashMap<>();
         private final Function<T, Stream<L>> indexFunction;
+        private final Publisher<Map.Entry<L, Collection<T>>> publisher = new Publisher<>(data::entrySet);
+        private final Consumer<Index<L, T>> onClose;
 
-        MultiIndex(@NonNull Function<T, Stream<L>> indexFunction) {
+        MultiIndex(@NonNull Function<T, Stream<L>> indexFunction, Consumer<Index<L, T>> onClose) {
             this.indexFunction = indexFunction;
+            this.onClose = onClose;
+        }
+
+        @Override
+        public Set<L> keys() {
+            return Set.copyOf(data.keySet());
         }
 
         @Override
@@ -192,21 +236,49 @@ public class ConcurrentLookup<K, V> implements Observer<V> {
         public void store(T data) {
             this.indexFunction.apply(data).forEachOrdered(key -> {
                 Objects.requireNonNull(key, "key cannot be null");
-                this.data.computeIfAbsent(key, k -> ConcurrentHashMap.newKeySet()).add(data);
+                this.data.compute(key, (k, dataCollection) -> {
+                    if(dataCollection == null) {
+                        var newCollection = Set.of(data);
+                        publisher.emit(UpdateType.ADD, Map.entry(key, newCollection));
+                        return newCollection;
+                    } else {
+                        var newCollection = Stream.concat(dataCollection.stream(), Stream.of(data))
+                                .collect(Collectors.toUnmodifiableSet());
+                        publisher.emit(UpdateType.UPDATE, Map.entry(key, newCollection));
+                        return newCollection;
+                    }
+                });
             });
         }
 
         @Override
         public void remove(T data) {
             this.indexFunction.apply(data).forEach(key -> {
-                var list = this.data.get(Objects.requireNonNull(key));
-                list.remove(data);
+                this.data.computeIfPresent(Objects.requireNonNull(key), (k, dataCollection) -> {
+                    var newCollection = new HashSet<>(dataCollection);
+                    var hasRemoved = newCollection.remove(data);
+                    var unmodifiableCollection = Set.copyOf(newCollection);
+                    if(hasRemoved && newCollection.isEmpty()) {
+                        publisher.emit(UpdateType.REMOVE, Map.entry(k, dataCollection));
+                        return null;
+                    } else if(hasRemoved) {
+                        publisher.emit(UpdateType.UPDATE, Map.entry(k, unmodifiableCollection));
+                    }
+                    return unmodifiableCollection;
+                });
             });
         }
 
         @Override
-        public void clear() {
-            this.data.clear();
+        public Flux<UpdateEvent<Entry<L, Collection<T>>>> observe() {
+            return publisher.observe();
+        }
+
+        @Override
+        public void close() {
+            onClose.accept(this);
+            publisher.close();
+            data.clear();
         }
     }
 }

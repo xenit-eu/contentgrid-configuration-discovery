@@ -7,11 +7,9 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.CountDownLatch;
-import java.util.concurrent.Semaphore;
 import java.util.function.Function;
 import lombok.SneakyThrows;
 import lombok.experimental.UtilityClass;
-import reactor.core.scheduler.Schedulers;
 
 @UtilityClass
 public class ObservableUtils {
@@ -22,7 +20,6 @@ public class ObservableUtils {
 
         var latch = new CountDownLatch(1);
         observable.observe()
-                .subscribeOn(Schedulers.boundedElastic(), true)
                 .doOnSubscribe((subscription) -> latch.countDown())
                 .subscribe(events::add);
 

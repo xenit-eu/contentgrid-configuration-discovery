@@ -44,7 +44,7 @@ public class ConcurrentLookupWithIndex {
 
     @Arbiter
     public void arbiter(IIII_Result r) {
-        var lookup = this.lookup.apply(3);
+        var lookup = this.lookup.get(3);
 
         r.r3 = (lookup != null && lookup.contains("foo")) ? 1 : -1;
         r.r4 = (lookup != null && lookup.contains("bar")) ? 1 : -1;
