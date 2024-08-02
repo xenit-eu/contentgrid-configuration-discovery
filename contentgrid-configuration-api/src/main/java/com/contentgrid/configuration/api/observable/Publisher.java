@@ -1,7 +1,8 @@
 package com.contentgrid.configuration.api.observable;
 
+import java.util.Collection;
+import java.util.List;
 import java.util.function.Supplier;
-import java.util.stream.Stream;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import reactor.core.publisher.Flux;
@@ -12,13 +13,13 @@ import reactor.core.publisher.Sinks.EmitFailureHandler;
 @Slf4j
 public class Publisher<T> implements AutoCloseable, Observable<T> {
     private final Sinks.Many<UpdateEvent<T>> sink;
-    private final Supplier<Stream<T>> existingDataSupplier;
+    private final Supplier<Collection<? extends T>> existingDataSupplier;
 
     public Publisher() {
-        this(Stream::empty);
+        this(List::of);
     }
 
-    public Publisher(Supplier<Stream<T>> existingDataSupplier) {
+    public Publisher(Supplier<Collection<? extends T>> existingDataSupplier) {
         this(Sinks.many().multicast().directBestEffort(), existingDataSupplier);
     }
 
@@ -37,12 +38,16 @@ public class Publisher<T> implements AutoCloseable, Observable<T> {
 
     @Override
     public Flux<UpdateEvent<T>> observe() {
+        var newData = sink.asFlux().share().onBackpressureBuffer();
+        // We subscribe immediately so events emitted between starting the iteration on the existingData and subscribing on newData afterwards are buffered
+        var earlySubscription = newData.subscribe();
         return Flux.concat(
-                Flux.fromStream(existingDataSupplier.get())
-                        .map(value -> new UpdateEvent<>(UpdateType.ADD, value))
+                Flux.fromIterable(existingDataSupplier.get())
+                        .map(data -> new UpdateEvent<>(UpdateType.ADD, (T)data))
                         .doOnNext(event -> log.trace("Emitting synthetic event {}", event)),
-                sink.asFlux()
-                        .onBackpressureBuffer()
+                newData
+                        // Once we have a subscription going on newData, there is no need to keep the early subscription around
+                        .doOnSubscribe((subscription) -> earlySubscription.dispose())
                         .doOnNext(event -> log.trace("Emitting event {}", event))
         );
 

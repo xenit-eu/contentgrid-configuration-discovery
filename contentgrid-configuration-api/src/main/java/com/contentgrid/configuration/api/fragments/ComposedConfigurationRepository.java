@@ -31,7 +31,7 @@ public class ComposedConfigurationRepository<ID, AGG, C> implements Configuratio
     private final Map<AGG, ComposedConfiguration<ID, AGG, C>> configs = new HashMap<>();
 
     @Delegate(types = AutoCloseable.class)
-    private final Publisher<AggregateIdConfiguration<AGG, C>> publisher = new Publisher<>(() -> configs.values().stream().map(c -> c));
+    private final Publisher<AggregateIdConfiguration<AGG, C>> publisher = new Publisher<>(configs::values);
 
     public ComposedConfigurationRepository(BinaryOperator<C> reducer, Observable<ConfigurationFragment<ID, AGG, C>> observable) {
         this(reducer);
@@ -94,7 +94,7 @@ public class ComposedConfigurationRepository<ID, AGG, C> implements Configuratio
 
 
     @Override
-    public Flux<UpdateEvent<AggregateIdConfiguration< AGG, C>>> observe() {
-        return publisher.observe();
+    public Flux<UpdateEvent<AggregateIdConfiguration<AGG, C>>> observe() {
+        return publisher.observe().map(e -> e.mapValue(c -> c));
     }
 }

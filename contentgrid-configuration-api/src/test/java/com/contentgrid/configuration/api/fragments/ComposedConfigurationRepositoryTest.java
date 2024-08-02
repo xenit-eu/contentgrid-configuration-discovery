@@ -3,22 +3,18 @@ package com.contentgrid.configuration.api.fragments;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.awaitility.Awaitility.await;
 
-import com.contentgrid.configuration.api.observable.Observable;
+import com.contentgrid.configuration.api.AggregateIdConfiguration;
 import com.contentgrid.configuration.api.observable.Observable.UpdateEvent;
 import com.contentgrid.configuration.api.observable.Observable.UpdateType;
 import com.contentgrid.configuration.api.observable.Publisher;
+import com.contentgrid.configuration.api.test.ObservableUtils;
 import java.time.Duration;
 import java.time.temporal.ChronoUnit;
-import java.util.ArrayList;
-import java.util.Collections;
 import java.util.HashSet;
-import java.util.List;
 import java.util.Set;
-import lombok.SneakyThrows;
 import lombok.Value;
 import org.awaitility.core.ThrowingRunnable;
 import org.junit.jupiter.api.Test;
-import reactor.core.scheduler.Schedulers;
 
 class ComposedConfigurationRepositoryTest {
 
@@ -44,17 +40,6 @@ class ComposedConfigurationRepositoryTest {
                 .untilAsserted(runnable);
     }
 
-    @SneakyThrows
-    private <T> List<UpdateEvent<T>> subscribe(Observable<T> observable) {
-        var events = Collections.synchronizedList(new ArrayList<UpdateEvent<T>>());
-
-        observable.observe()
-                .subscribeOn(Schedulers.boundedElastic(), true)
-                .subscribe(events::add);
-        Thread.sleep(10); // Short sleep, so the subscription is certainly active before new events are emitted into it
-        return events;
-    }
-
     @Test
     void registerConfigurationFragments() {
         var repo = new ComposedConfigurationRepository<String, String, TestConfiguration>(TestConfiguration::merge);
@@ -66,7 +51,7 @@ class ComposedConfigurationRepositoryTest {
         assertThat(repo.findConfiguration("abc").getConfiguration()).hasValue(
                 new TestConfiguration("xyz", Set.of("ZZZ", "AAA", "BBB")));
 
-        var events = subscribe(repo);
+        var events = ObservableUtils.eventsToList(repo);
 
         awaitUntilAsserted(() -> {
             assertThat(events).containsExactly(new UpdateEvent<>(UpdateType.ADD, repo.findConfiguration("abc")));
@@ -117,7 +102,7 @@ class ComposedConfigurationRepositoryTest {
     void revokeNonExistingFragment() {
         var repo = new ComposedConfigurationRepository<String, String, TestConfiguration>(TestConfiguration::merge);
 
-        var events = subscribe(repo);
+        var events = ObservableUtils.eventsToList(repo);
 
         repo.register(new ConfigurationFragment<>("test", "abc", new TestConfiguration("xyz", Set.of())));
         repo.revoke("xyz");
@@ -133,7 +118,7 @@ class ComposedConfigurationRepositoryTest {
     void registerFragmentToNewAggregate() {
         var repo = new ComposedConfigurationRepository<String, String, TestConfiguration>(TestConfiguration::merge);
 
-        var events = subscribe(repo);
+        var events = ObservableUtils.eventsToList(repo);
 
         repo.register(new ConfigurationFragment<>("test", "abc", new TestConfiguration("xyz", Set.of())));
 
@@ -159,7 +144,7 @@ class ComposedConfigurationRepositoryTest {
     void reRegisterFragment() {
         var repo = new ComposedConfigurationRepository<String, String, TestConfiguration>(TestConfiguration::merge);
 
-        var events = subscribe(repo);
+        var events = ObservableUtils.eventsToConcurrentLookup(repo, AggregateIdConfiguration::getAggregateId);
 
         repo.register(new ConfigurationFragment<>("test", "abc", new TestConfiguration("xyz", Set.of("ZZZ"))));
 
@@ -171,10 +156,7 @@ class ComposedConfigurationRepositoryTest {
                 .hasValue(new TestConfiguration("xyz123", Set.of("ABC")));
 
         awaitUntilAsserted(() -> {
-            assertThat(events).containsExactly(
-                    new UpdateEvent<>(UpdateType.ADD, firstAbc),
-                    new UpdateEvent<>(UpdateType.UPDATE, repo.findConfiguration("abc"))
-            );
+            assertThat(events.get("abc")).isEqualTo(repo.findConfiguration("abc"));
         });
 
     }

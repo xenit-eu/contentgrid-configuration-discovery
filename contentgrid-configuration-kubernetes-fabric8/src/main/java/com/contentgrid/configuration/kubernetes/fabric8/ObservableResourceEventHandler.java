@@ -4,6 +4,7 @@ import com.contentgrid.configuration.api.observable.Observable;
 import com.contentgrid.configuration.api.observable.Publisher;
 import io.fabric8.kubernetes.api.model.HasMetadata;
 import io.fabric8.kubernetes.client.informers.ResourceEventHandler;
+import io.fabric8.kubernetes.client.informers.SharedIndexInformer;
 import java.util.Objects;
 import lombok.experimental.Delegate;
 import reactor.core.publisher.Flux;
@@ -11,7 +12,11 @@ import reactor.core.publisher.Flux;
 class ObservableResourceEventHandler<T extends HasMetadata> implements ResourceEventHandler<T>, Observable<T>, AutoCloseable {
 
     @Delegate(types = {AutoCloseable.class})
-    private final Publisher<T> publisher = new Publisher<>();
+    private final Publisher<T> publisher;
+
+    ObservableResourceEventHandler(SharedIndexInformer<T> informer) {
+        publisher = new Publisher<>(informer.getStore()::list);
+    }
 
     @Override
     public void onAdd(T obj) {

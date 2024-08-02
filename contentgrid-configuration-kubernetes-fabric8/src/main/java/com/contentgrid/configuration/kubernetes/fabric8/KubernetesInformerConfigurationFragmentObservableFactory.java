@@ -32,7 +32,7 @@ public class KubernetesInformerConfigurationFragmentObservableFactory implements
 
         closeables.add(informer);
 
-        var observableEventHandler = new ObservableResourceEventHandler<T>();
+        var observableEventHandler = new ObservableResourceEventHandler<T>(informer);
 
         closeables.add(observableEventHandler);
 
@@ -40,12 +40,10 @@ public class KubernetesInformerConfigurationFragmentObservableFactory implements
 
         informer.run();
 
-        return () ->
-                Flux.concat(
-                        Flux.fromIterable(informer.getStore().list())
-                                .map(data -> new UpdateEvent<>(UpdateType.ADD, data)),
-                        observableEventHandler.observe()
-                ).map(event -> event.mapValue(configurationFragmentFactory::createFragment));
+        return () -> {
+            return observableEventHandler.observe()
+                    .map(event -> event.mapValue(configurationFragmentFactory::createFragment));
+        };
     }
 
     @Override
