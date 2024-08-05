@@ -1,4 +1,4 @@
-package com.contentgrid.configuration.spring.autoconfigure;
+package com.contentgrid.configuration.spring.autoconfigure.kubernetes;
 
 import io.fabric8.kubernetes.api.model.LabelSelector;
 import io.fabric8.kubernetes.client.dsl.FilterWatchListDeletable;

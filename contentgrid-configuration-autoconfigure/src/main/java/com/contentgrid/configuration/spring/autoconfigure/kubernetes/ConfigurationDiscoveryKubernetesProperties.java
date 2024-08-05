@@ -1,4 +1,4 @@
-package com.contentgrid.configuration.spring.autoconfigure;
+package com.contentgrid.configuration.spring.autoconfigure.kubernetes;
 
 import lombok.Data;
 import org.springframework.boot.context.properties.ConfigurationProperties;
