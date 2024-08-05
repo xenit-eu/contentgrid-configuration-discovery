@@ -13,6 +13,6 @@ dependencies {
     implementation 'org.slf4j:slf4j-api:2.0.13'
 
     testImplementation 'org.assertj:assertj-core:3.25.3'
-    testImplementation 'io.projectreactor:reactor-test:3.6.7'
+    testImplementation 'io.projectreactor:reactor-test:3.6.8'
     testImplementation 'org.awaitility:awaitility:4.2.1'
 }
