@@ -24,7 +24,7 @@ import org.testcontainers.k3s.K3sContainer;
 import org.testcontainers.utility.DockerImageName;
 
 @Testcontainers
-class KubernetesInformerConfigurationFragmentObservableFactoryTest {
+class KubernetesInformerObservableFactoryTest {
 
     public static final SecretConfigurationFragmentFactory<String, Map<String, String>> FRAGMENT_FACTORY = new SecretConfigurationFragmentFactory<>(
             secret -> secret.getMetadata().getLabels().get("aggregation-key"),
@@ -52,7 +52,7 @@ class KubernetesInformerConfigurationFragmentObservableFactoryTest {
                         .endMetadata()
                         .build())
                 .create();
-        var factory = new KubernetesInformerConfigurationFragmentObservableFactory(
+        var factory = new KubernetesInformerObservableFactory(
                 client,
                 Duration.of(1, ChronoUnit.MINUTES)
         );
@@ -154,7 +154,7 @@ class KubernetesInformerConfigurationFragmentObservableFactoryTest {
                         .endMetadata()
                         .build())
                 .create();
-        var factory = new KubernetesInformerConfigurationFragmentObservableFactory(
+        var factory = new KubernetesInformerObservableFactory(
                 client,
                 Duration.of(1, ChronoUnit.MINUTES)
         );

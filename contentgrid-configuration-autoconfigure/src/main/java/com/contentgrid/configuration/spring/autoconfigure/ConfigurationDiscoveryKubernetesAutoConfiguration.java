@@ -1,6 +1,6 @@
 package com.contentgrid.configuration.spring.autoconfigure;
 
-import com.contentgrid.configuration.kubernetes.fabric8.KubernetesInformerConfigurationFragmentObservableFactory;
+import com.contentgrid.configuration.kubernetes.fabric8.KubernetesInformerObservableFactory;
 import io.fabric8.kubernetes.client.KubernetesClient;
 import java.time.Duration;
 import org.springframework.boot.autoconfigure.AutoConfiguration;
@@ -14,16 +14,16 @@ import org.springframework.context.annotation.Import;
 
 @AutoConfiguration(after = Fabric8AutoConfiguration.class)
 @EnableConfigurationProperties(ConfigurationDiscoveryKubernetesProperties.class)
-@ConditionalOnClass({KubernetesInformerConfigurationFragmentObservableFactory.class, KubernetesClient.class})
+@ConditionalOnClass({KubernetesInformerObservableFactory.class, KubernetesClient.class})
 @ConditionalOnBean(KubernetesClient.class)
 @Import(KubernetesConfigurationMappingApplicationConfiguration.class)
 public class ConfigurationDiscoveryKubernetesAutoConfiguration {
 
     @Bean
     @ConditionalOnMissingBean
-    KubernetesInformerConfigurationFragmentObservableFactory kubernetesInformerConfigurationFragmentObservableFactory(
+    KubernetesInformerObservableFactory kubernetesInformerConfigurationFragmentObservableFactory(
             KubernetesClient kubernetesClient
     ) {
-        return new KubernetesInformerConfigurationFragmentObservableFactory(kubernetesClient, Duration.ZERO);
+        return new KubernetesInformerObservableFactory(kubernetesClient, Duration.ZERO);
     }
 }

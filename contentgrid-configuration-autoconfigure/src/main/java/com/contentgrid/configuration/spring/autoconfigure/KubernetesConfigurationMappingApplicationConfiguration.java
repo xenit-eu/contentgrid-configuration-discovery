@@ -7,7 +7,7 @@ import com.contentgrid.configuration.api.observable.Observable;
 import com.contentgrid.configuration.applications.ApplicationConfiguration;
 import com.contentgrid.configuration.applications.ApplicationId;
 import com.contentgrid.configuration.kubernetes.fabric8.ConfigMapConfigurationFragmentFactory;
-import com.contentgrid.configuration.kubernetes.fabric8.KubernetesInformerConfigurationFragmentObservableFactory;
+import com.contentgrid.configuration.kubernetes.fabric8.KubernetesInformerObservableFactory;
 import com.contentgrid.configuration.kubernetes.fabric8.SecretConfigurationFragmentFactory;
 import io.fabric8.kubernetes.api.model.ConfigMap;
 import io.fabric8.kubernetes.api.model.HasMetadata;
@@ -21,7 +21,7 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
 @Configuration(proxyBeanMethods = false)
-@ConditionalOnClass({KubernetesInformerConfigurationFragmentObservableFactory.class, ApplicationConfiguration.class})
+@ConditionalOnClass({KubernetesInformerObservableFactory.class, ApplicationConfiguration.class})
 public class KubernetesConfigurationMappingApplicationConfiguration {
     private static final String LABEL_CONTENTGRID_APPID = "app.contentgrid.com/application-id";
 
@@ -49,7 +49,7 @@ public class KubernetesConfigurationMappingApplicationConfiguration {
     @Bean
     Observable<ConfigurationFragment<String, ApplicationId, ApplicationConfiguration>> configMapApplicationConfigurationFragmentObservable(
             KubernetesResourceFilter resourceFilter,
-            KubernetesInformerConfigurationFragmentObservableFactory observableFactory,
+            KubernetesInformerObservableFactory observableFactory,
             ConfigurationFragmentFactory<ConfigMap, String, ApplicationId, ApplicationConfiguration> fragmentFactory
     ) {
         return observableFactory.inform(kc -> resourceFilter.filter(kc.configMaps()), fragmentFactory);
@@ -66,7 +66,7 @@ public class KubernetesConfigurationMappingApplicationConfiguration {
     @Bean
     Observable<ConfigurationFragment<String, ApplicationId, ApplicationConfiguration>> secretApplicationConfigurationFragmentObservable(
             KubernetesResourceFilter resourceFilter,
-            KubernetesInformerConfigurationFragmentObservableFactory observableFactory,
+            KubernetesInformerObservableFactory observableFactory,
             ConfigurationFragmentFactory<Secret, String, ApplicationId, ApplicationConfiguration> fragmentFactory
     ) {
         return observableFactory.inform(kc -> resourceFilter.filter(kc.secrets()), fragmentFactory);
