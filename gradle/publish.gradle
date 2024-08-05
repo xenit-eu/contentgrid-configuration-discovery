@@ -5,8 +5,8 @@ publishing {
         all {
             pom {
                 url = 'https://github.com/xenit-eu/contentgrid-configuration-discovery'
-                name = project.name
-                description = project.description
+                name = "${project.name}"
+                description = "${project.description}"
 
                 scm {
                     connection = 'scm:git:git@github.com:xenit-eu/contentgrid-configuration-discovery.git'
@@ -71,3 +71,5 @@ pluginManager.withPlugin('java-platform') {
         }
     }
 }
+
+check.dependsOn('checkMavenCentralRequirements')
