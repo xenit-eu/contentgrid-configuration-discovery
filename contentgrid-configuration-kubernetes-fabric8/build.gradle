@@ -15,7 +15,7 @@ java {
 
 dependencies {
     api project(':contentgrid-configuration-api')
-    implementation 'io.fabric8:kubernetes-client:6.9.2'
+    api 'io.fabric8:kubernetes-client:6.9.2'
     runtimeOnly 'org.bouncycastle:bcpkix-jdk18on:1.78.1'
 
     testImplementation testFixtures(project(':contentgrid-configuration-api'))

@@ -7,19 +7,22 @@ import java.util.Base64;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.function.Function;
+import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
 
 @RequiredArgsConstructor
-public class SecretConfigurationFragmentFactory<AGG> implements ConfigurationFragmentFactory<Secret, String, AGG, Map<String, String>> {
+public class SecretConfigurationFragmentFactory<AGG, C> implements ConfigurationFragmentFactory<Secret, String, AGG, C> {
+    @NonNull
     private final Function<Secret, AGG> aggregationFunction;
-
+    @NonNull
+    private final Function<Map<String, String>, C> configurationFunction;
 
     @Override
-    public ConfigurationFragment<String, AGG, Map<String, String>> createFragment(Secret fragment) {
+    public ConfigurationFragment<String, AGG, C> createFragment(Secret fragment) {
         return new ConfigurationFragment<>(
                 fragment.getMetadata().getUid(),
                 aggregationFunction.apply(fragment),
-                base64decode(fragment.getData())
+                configurationFunction.apply(base64decode(fragment.getData()))
         );
     }
 

@@ -15,6 +15,7 @@ import java.time.Duration;
 import java.time.temporal.ChronoUnit;
 import java.util.Map;
 import java.util.UUID;
+import java.util.function.Function;
 import org.awaitility.core.ThrowingRunnable;
 import org.junit.jupiter.api.Test;
 import org.testcontainers.junit.jupiter.Container;
@@ -24,6 +25,11 @@ import org.testcontainers.utility.DockerImageName;
 
 @Testcontainers
 class KubernetesInformerConfigurationFragmentObservableFactoryTest {
+
+    public static final SecretConfigurationFragmentFactory<String, Map<String, String>> FRAGMENT_FACTORY = new SecretConfigurationFragmentFactory<>(
+            secret -> secret.getMetadata().getLabels().get("aggregation-key"),
+            Function.identity()
+    );
     @Container
     private static K3sContainer k3s = new K3sContainer(DockerImageName.parse("rancher/k3s"));
 
@@ -51,8 +57,7 @@ class KubernetesInformerConfigurationFragmentObservableFactoryTest {
                 Duration.of(1, ChronoUnit.MINUTES)
         );
 
-        var observer = factory.inform(c -> c.secrets().inNamespace(namespace), new SecretConfigurationFragmentFactory<>(
-                secret -> secret.getMetadata().getLabels().get("aggregation-key")));
+        var observer = factory.inform(c -> c.secrets().inNamespace(namespace), FRAGMENT_FACTORY);
 
         var events = ObservableUtils.eventsToList(observer);
 
@@ -154,8 +159,7 @@ class KubernetesInformerConfigurationFragmentObservableFactoryTest {
                 Duration.of(1, ChronoUnit.MINUTES)
         );
 
-        var observable = factory.inform(c -> c.secrets().inNamespace(namespace), new SecretConfigurationFragmentFactory<>(
-                secret -> secret.getMetadata().getLabels().get("aggregation-key")));
+        var observable = factory.inform(c -> c.secrets().inNamespace(namespace), FRAGMENT_FACTORY);
 
         var secret1 = client.resource(new SecretBuilder()
                         .withNewMetadata()

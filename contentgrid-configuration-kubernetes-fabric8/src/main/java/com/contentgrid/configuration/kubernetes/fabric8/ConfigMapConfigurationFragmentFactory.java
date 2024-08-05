@@ -5,18 +5,22 @@ import com.contentgrid.configuration.api.fragments.ConfigurationFragmentFactory;
 import io.fabric8.kubernetes.api.model.ConfigMap;
 import java.util.Map;
 import java.util.function.Function;
+import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
 
 @RequiredArgsConstructor
-public class ConfigMapConfigurationFragmentFactory<AGG> implements ConfigurationFragmentFactory<ConfigMap, String, AGG, Map<String, String>> {
+public class ConfigMapConfigurationFragmentFactory<AGG, C> implements ConfigurationFragmentFactory<ConfigMap, String, AGG, C> {
+    @NonNull
     private final Function<ConfigMap, AGG> aggregationFunction;
+    @NonNull
+    private final Function<Map<String, String>, C> configurationFunction;
 
     @Override
-    public ConfigurationFragment<String, AGG, Map<String, String>> createFragment(ConfigMap fragment) {
+    public ConfigurationFragment<String, AGG, C> createFragment(ConfigMap fragment) {
         return new ConfigurationFragment<>(
                 fragment.getMetadata().getUid(),
                 aggregationFunction.apply(fragment),
-                fragment.getData()
+                configurationFunction.apply(fragment.getData())
         );
     }
 }
