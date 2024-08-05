@@ -1,6 +1,6 @@
 pluginManagement {
     plugins {
-        id 'io.freefair.lombok' version '6.5.1'
+        id 'io.freefair.lombok' version '8.6'
     }
 }
 
@@ -10,6 +10,7 @@ plugins {
 }
 
 rootProject.name = 'contentgrid-configuration-discovery'
+include 'contentgrid-configuration-bom'
 include 'contentgrid-configuration-api'
 include 'contentgrid-configuration-contentgrid-apps'
 include 'contentgrid-configuration-kubernetes-fabric8'
