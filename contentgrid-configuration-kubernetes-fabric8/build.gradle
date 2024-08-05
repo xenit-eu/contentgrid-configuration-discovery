@@ -12,7 +12,7 @@ dependencies {
     runtimeOnly 'org.bouncycastle:bcpkix-jdk18on:1.78.1'
 
     testImplementation testFixtures(project(':contentgrid-configuration-api'))
-    testImplementation 'org.assertj:assertj-core:3.25.3'
+    testImplementation 'org.assertj:assertj-core:3.26.3'
     testImplementation 'org.awaitility:awaitility:4.2.1'
 
     testImplementation platform('org.testcontainers:testcontainers-bom:1.20.1')
