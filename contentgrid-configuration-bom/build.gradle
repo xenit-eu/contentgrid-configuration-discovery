@@ -1,0 +1,14 @@
+plugins {
+    id 'java-platform'
+    id 'maven-publish'
+}
+
+dependencies {
+    constraints {
+        rootProject.subprojects.forEach {
+            if (it != project) {
+                api it
+            }
+        }
+    }
+}

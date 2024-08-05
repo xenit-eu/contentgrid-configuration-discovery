@@ -1,0 +1,24 @@
+plugins {
+    id 'java-library'
+    id 'io.freefair.lombok'
+    id 'maven-publish'
+}
+
+description = "ContentGrid configuration discovery: Kubernetes discovery"
+
+dependencies {
+    api project(':contentgrid-configuration-api')
+    api 'io.fabric8:kubernetes-client:6.9.2'
+    runtimeOnly 'org.bouncycastle:bcpkix-jdk18on:1.78.1'
+
+    testImplementation testFixtures(project(':contentgrid-configuration-api'))
+    testImplementation 'org.assertj:assertj-core:3.25.3'
+    testImplementation 'org.awaitility:awaitility:4.2.1'
+
+    testImplementation platform('org.testcontainers:testcontainers-bom:1.20.1')
+    testImplementation 'org.testcontainers:testcontainers'
+    testImplementation 'org.testcontainers:junit-jupiter'
+    testImplementation 'org.testcontainers:k3s'
+
+    testImplementation 'ch.qos.logback:logback-classic:1.4.6'
+}

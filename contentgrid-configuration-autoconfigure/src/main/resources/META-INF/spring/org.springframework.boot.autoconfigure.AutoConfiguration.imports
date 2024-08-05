@@ -1,0 +1,2 @@
+com.contentgrid.configuration.spring.autoconfigure.ApplicationConfigurationAutoConfiguration
+com.contentgrid.configuration.spring.autoconfigure.ConfigurationDiscoveryKubernetesAutoConfiguration
