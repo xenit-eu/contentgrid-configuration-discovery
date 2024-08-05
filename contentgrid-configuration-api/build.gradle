@@ -2,18 +2,11 @@ plugins {
     id 'java-library'
     id 'java-test-fixtures'
     id 'io.freefair.lombok'
+    id 'maven-publish'
     id 'io.github.reyerizo.gradle.jcstress' version '0.8.15'
 }
 
-repositories {
-    mavenCentral()
-}
-
-java {
-    toolchain {
-        languageVersion = JavaLanguageVersion.of(17)
-    }
-}
+description = "ContentGrid configuration discovery: Core API"
 
 dependencies {
     api 'io.projectreactor:reactor-core:3.6.7'
@@ -22,14 +15,4 @@ dependencies {
     testImplementation 'org.assertj:assertj-core:3.25.3'
     testImplementation 'io.projectreactor:reactor-test:3.6.7'
     testImplementation 'org.awaitility:awaitility:4.2.1'
-}
-
-testing {
-    suites {
-        // Configure the built-in test suite
-        test {
-            // Use JUnit Jupiter test framework
-            useJUnitJupiter('5.8.1')
-        }
-    }
 }

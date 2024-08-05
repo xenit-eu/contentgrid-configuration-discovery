@@ -1,6 +1,5 @@
 package com.contentgrid.configuration.api;
 
-import com.contentgrid.configuration.api.fragments.MappedConfiguration;
 import java.util.function.Function;
 
 public interface AggregateIdConfiguration<AGG, C> extends HasConfiguration<C> {

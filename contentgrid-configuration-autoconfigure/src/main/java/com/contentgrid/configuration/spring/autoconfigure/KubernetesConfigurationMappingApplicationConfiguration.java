@@ -1,6 +1,6 @@
 package com.contentgrid.configuration.spring.autoconfigure;
 
-import com.contentgrid.configuration.api.DynamicallyConfigurable;
+import com.contentgrid.configuration.api.fragments.DynamicallyConfigurable;
 import com.contentgrid.configuration.api.fragments.ConfigurationFragment;
 import com.contentgrid.configuration.api.fragments.ConfigurationFragmentFactory;
 import com.contentgrid.configuration.api.observable.Observable;

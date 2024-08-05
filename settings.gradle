@@ -11,7 +11,7 @@ plugins {
 
 rootProject.name = 'contentgrid-configuration-discovery'
 include 'contentgrid-configuration-api'
-include 'contentgrid-configuration-applications'
+include 'contentgrid-configuration-contentgrid-apps'
 include 'contentgrid-configuration-kubernetes-fabric8'
 include 'contentgrid-configuration-autoconfigure'
 

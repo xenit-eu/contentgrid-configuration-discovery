@@ -1,12 +1,11 @@
-package com.contentgrid.configuration.api.fragments;
+package com.contentgrid.configuration.api;
 
-import com.contentgrid.configuration.api.AggregateIdConfiguration;
 import java.util.Optional;
 import java.util.function.Function;
 import lombok.RequiredArgsConstructor;
 
 @RequiredArgsConstructor
-public class MappedConfiguration<AGG, C, T> implements AggregateIdConfiguration<AGG, T> {
+class MappedConfiguration<AGG, C, T> implements AggregateIdConfiguration<AGG, T> {
     private final AggregateIdConfiguration<AGG, C> configuration;
     private final Function<C, T> mapper;
 

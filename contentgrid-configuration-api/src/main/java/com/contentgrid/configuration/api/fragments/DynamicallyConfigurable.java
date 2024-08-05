@@ -1,4 +1,4 @@
-package com.contentgrid.configuration.api;
+package com.contentgrid.configuration.api.fragments;
 
 import com.contentgrid.configuration.api.fragments.ConfigurationFragment;
 import com.contentgrid.configuration.api.observable.Observable;

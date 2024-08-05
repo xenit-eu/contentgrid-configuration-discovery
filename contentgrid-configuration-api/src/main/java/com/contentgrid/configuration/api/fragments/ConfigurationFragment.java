@@ -8,7 +8,6 @@ import lombok.ToString;
 import lombok.Value;
 
 @Value
-@ToString
 public class ConfigurationFragment<ID, AGG, C> implements AggregateIdConfiguration<AGG, C> {
     @NonNull
     ID fragmentId;

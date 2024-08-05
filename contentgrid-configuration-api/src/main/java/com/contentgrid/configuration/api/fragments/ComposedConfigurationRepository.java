@@ -1,7 +1,6 @@
 package com.contentgrid.configuration.api.fragments;
 
 import com.contentgrid.configuration.api.AggregateIdConfiguration;
-import com.contentgrid.configuration.api.DynamicallyConfigurable;
 import com.contentgrid.configuration.api.ConfigurationRepository;
 import com.contentgrid.configuration.api.lookup.ConcurrentLookup;
 import com.contentgrid.configuration.api.lookup.Lookup;
