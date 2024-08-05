@@ -1,4 +1,4 @@
-package com.contentgrid.configuration.spring.autoconfigure;
+package com.contentgrid.configuration.spring.autoconfigure.kubernetes;
 
 import com.contentgrid.configuration.api.fragments.DynamicallyConfigurable;
 import com.contentgrid.configuration.api.fragments.ConfigurationFragment;
@@ -72,16 +72,6 @@ public class KubernetesConfigurationMappingApplicationConfiguration {
         return observableFactory.inform(kc -> resourceFilter.filter(kc.secrets()), fragmentFactory);
     }
 
-
-    @Bean
-    ApplicationRunner subscribeApplicationConfigurationRepository(
-            List<Observable<ConfigurationFragment<String, ApplicationId, ApplicationConfiguration>>> observables,
-            DynamicallyConfigurable<String, ApplicationId, ApplicationConfiguration> configurationRepository
-    ) {
-        return (args) -> {
-            observables.forEach(configurationRepository::subscribe);
-        };
-    }
 
 
     private static ApplicationId createApplicationIdFromMetadata(HasMetadata cm) {

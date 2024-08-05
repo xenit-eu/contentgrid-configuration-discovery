@@ -1,0 +1,11 @@
+plugins {
+    id 'java-library'
+    id 'io.freefair.lombok'
+    id 'maven-publish'
+}
+
+description = "ContentGrid configuration discovery: Spring properties discovery"
+
+dependencies {
+    api project(':contentgrid-configuration-api')
+}

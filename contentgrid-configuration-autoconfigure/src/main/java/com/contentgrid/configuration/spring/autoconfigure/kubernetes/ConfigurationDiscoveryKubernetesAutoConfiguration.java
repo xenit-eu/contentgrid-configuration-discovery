@@ -1,4 +1,4 @@
-package com.contentgrid.configuration.spring.autoconfigure;
+package com.contentgrid.configuration.spring.autoconfigure.kubernetes;
 
 import com.contentgrid.configuration.kubernetes.fabric8.KubernetesInformerObservableFactory;
 import io.fabric8.kubernetes.client.KubernetesClient;
