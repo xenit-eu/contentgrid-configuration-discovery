@@ -23,6 +23,21 @@ import org.springframework.context.annotation.Configuration;
 @Configuration(proxyBeanMethods = false)
 @ConditionalOnClass({KubernetesInformerConfigurationFragmentObservableFactory.class, ApplicationConfiguration.class})
 public class KubernetesConfigurationMappingApplicationConfiguration {
+    private static final String LABEL_CONTENTGRID_APPID = "app.contentgrid.com/application-id";
+
+    private static final LabelSelector CONFIG_LABEL_SELECTOR = new LabelSelectorBuilder()
+            .addToMatchLabels("app.contentgrid.com/service-type", "gateway")
+            .addNewMatchExpression()
+            .withKey(LABEL_CONTENTGRID_APPID)
+            .withOperator("Exists")
+            .endMatchExpression()
+            .build();
+
+    @Bean
+    KubernetesResourceFilter kubernetesResourceFilter(ConfigurationDiscoveryKubernetesProperties configurationDiscoveryKubernetesProperties) {
+        return new KubernetesResourceFilter(configurationDiscoveryKubernetesProperties.getNamespace(), CONFIG_LABEL_SELECTOR);
+    }
+
     @Bean
     ConfigurationFragmentFactory<ConfigMap, String, ApplicationId, ApplicationConfiguration> configMapApplicationConfigurationFragmentFactory() {
         return new ConfigMapConfigurationFragmentFactory<>(
@@ -33,11 +48,11 @@ public class KubernetesConfigurationMappingApplicationConfiguration {
 
     @Bean
     Observable<ConfigurationFragment<String, ApplicationId, ApplicationConfiguration>> configMapApplicationConfigurationFragmentObservable(
-            ConfigurationDiscoveryKubernetesProperties kubernetesProperties,
+            KubernetesResourceFilter resourceFilter,
             KubernetesInformerConfigurationFragmentObservableFactory observableFactory,
             ConfigurationFragmentFactory<ConfigMap, String, ApplicationId, ApplicationConfiguration> fragmentFactory
     ) {
-        return observableFactory.inform(kc -> kc.configMaps().inNamespace(kubernetesProperties.getNamespace()).withLabelSelector(CONFIG_LABEL_SELECTOR), fragmentFactory);
+        return observableFactory.inform(kc -> resourceFilter.filter(kc.configMaps()), fragmentFactory);
     }
 
     @Bean
@@ -50,11 +65,11 @@ public class KubernetesConfigurationMappingApplicationConfiguration {
 
     @Bean
     Observable<ConfigurationFragment<String, ApplicationId, ApplicationConfiguration>> secretApplicationConfigurationFragmentObservable(
-            ConfigurationDiscoveryKubernetesProperties kubernetesProperties,
+            KubernetesResourceFilter resourceFilter,
             KubernetesInformerConfigurationFragmentObservableFactory observableFactory,
             ConfigurationFragmentFactory<Secret, String, ApplicationId, ApplicationConfiguration> fragmentFactory
     ) {
-        return observableFactory.inform(kc -> kc.secrets().inNamespace(kubernetesProperties.getNamespace()).withLabelSelector(CONFIG_LABEL_SELECTOR), fragmentFactory);
+        return observableFactory.inform(kc -> resourceFilter.filter(kc.secrets()), fragmentFactory);
     }
 
 
@@ -67,16 +82,6 @@ public class KubernetesConfigurationMappingApplicationConfiguration {
             observables.forEach(configurationRepository::subscribe);
         };
     }
-
-    private static final String LABEL_CONTENTGRID_APPID = "app.contentgrid.com/application-id";
-
-    private static final LabelSelector CONFIG_LABEL_SELECTOR = new LabelSelectorBuilder()
-            .addToMatchLabels("app.contentgrid.com/service-type", "gateway")
-            .addNewMatchExpression()
-            .withKey(LABEL_CONTENTGRID_APPID)
-            .withOperator("Exists")
-            .endMatchExpression()
-            .build();
 
 
     private static ApplicationId createApplicationIdFromMetadata(HasMetadata cm) {
