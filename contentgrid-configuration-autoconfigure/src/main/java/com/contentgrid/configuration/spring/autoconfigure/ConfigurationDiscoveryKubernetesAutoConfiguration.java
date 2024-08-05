@@ -15,12 +15,12 @@ import org.springframework.context.annotation.Import;
 @AutoConfiguration(after = Fabric8AutoConfiguration.class)
 @EnableConfigurationProperties(ConfigurationDiscoveryKubernetesProperties.class)
 @ConditionalOnClass({KubernetesInformerConfigurationFragmentObservableFactory.class, KubernetesClient.class})
+@ConditionalOnBean(KubernetesClient.class)
 @Import(KubernetesConfigurationMappingApplicationConfiguration.class)
 public class ConfigurationDiscoveryKubernetesAutoConfiguration {
 
     @Bean
     @ConditionalOnMissingBean
-    @ConditionalOnBean(KubernetesClient.class)
     KubernetesInformerConfigurationFragmentObservableFactory kubernetesInformerConfigurationFragmentObservableFactory(
             KubernetesClient kubernetesClient
     ) {

@@ -1,7 +1,6 @@
 package com.contentgrid.configuration.spring.autoconfigure;
 
 import com.contentgrid.configuration.api.DynamicallyConfigurable;
-import com.contentgrid.configuration.api.fragments.ComposedConfigurationRepository;
 import com.contentgrid.configuration.api.fragments.ConfigurationFragment;
 import com.contentgrid.configuration.api.fragments.ConfigurationFragmentFactory;
 import com.contentgrid.configuration.api.observable.Observable;
@@ -18,7 +17,6 @@ import io.fabric8.kubernetes.api.model.Secret;
 import java.util.List;
 import org.springframework.boot.ApplicationRunner;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnClass;
-import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
@@ -59,12 +57,6 @@ public class KubernetesConfigurationMappingApplicationConfiguration {
         return observableFactory.inform(kc -> kc.secrets().inNamespace(kubernetesProperties.getNamespace()).withLabelSelector(CONFIG_LABEL_SELECTOR), fragmentFactory);
     }
 
-    @Bean
-    @ConditionalOnMissingBean
-    ComposedConfigurationRepository<String, ApplicationId, ApplicationConfiguration> applicationConfigurationConfigurationRepository(
-    ) {
-        return new ComposedConfigurationRepository<>(ApplicationConfiguration::merge);
-    }
 
     @Bean
     ApplicationRunner subscribeApplicationConfigurationRepository(
