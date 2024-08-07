@@ -1,6 +1,6 @@
 package com.contentgrid.configuration.api.fragments;
 
-import com.contentgrid.configuration.api.AggregateIdConfiguration;
+import com.contentgrid.configuration.api.ComposedConfiguration;
 import com.contentgrid.configuration.api.ConfigurationRepository;
 import com.contentgrid.configuration.api.lookup.ConcurrentLookup;
 import com.contentgrid.configuration.api.lookup.Lookup;
@@ -16,56 +16,56 @@ import lombok.Value;
 import reactor.core.publisher.Flux;
 
 @RequiredArgsConstructor
-public class ComposedConfigurationRepository<ID, AGG, C> implements ConfigurationRepository<AGG, C>,
-        DynamicallyConfigurable<ID, AGG, C>,
-        Observable<AggregateIdConfiguration<AGG, C>>,
+public class ComposedConfigurationRepository<F, K, C> implements ConfigurationRepository<K, C>,
+        DynamicallyConfigurable<F, K, C>,
+        Observable<ComposedConfiguration<K, C>>,
         AutoCloseable
 {
 
     @NonNull
     private final BinaryOperator<C> reducer;
 
-    private final ConcurrentLookup<ID, ConfigurationFragment<ID, AGG, C>> lookup = new ConcurrentLookup<>(ConfigurationFragment::getFragmentId);
-    private final Lookup<AGG, ConfigurationFragment<ID, AGG, C>> aggregateLookup = lookup.createLookup(ConfigurationFragment::getAggregateId);
+    private final ConcurrentLookup<F, ConfigurationFragment<F, K, C>> lookup = new ConcurrentLookup<>(ConfigurationFragment::getFragmentId);
+    private final Lookup<K, ConfigurationFragment<F, K, C>> composedLookup = lookup.createLookup(ConfigurationFragment::getCompositionKey);
 
-    public ComposedConfigurationRepository(BinaryOperator<C> reducer, Observable<ConfigurationFragment<ID, AGG, C>> observable) {
+    public ComposedConfigurationRepository(BinaryOperator<C> reducer, Observable<ConfigurationFragment<F, K, C>> observable) {
         this(reducer);
         subscribe(observable);
     }
 
     @Override
-    public AggregateIdConfiguration<AGG, C> findConfiguration(AGG aggregationId) {
-        return createAggregate(Map.entry(aggregationId, aggregateLookup.get(aggregationId)));
+    public ComposedConfiguration<K, C> findConfiguration(K compositionKey) {
+        return composeConfiguration(Map.entry(compositionKey, composedLookup.get(compositionKey)));
     }
 
-    private AggregateIdConfiguration<AGG, C> createAggregate(Map.Entry<AGG, Collection<ConfigurationFragment<ID, AGG, C>>> entry) {
+    private ComposedConfiguration<K, C> composeConfiguration(Map.Entry<K, Collection<ConfigurationFragment<F, K, C>>> entry) {
         var configuration = entry.getValue().stream()
                 .map(ConfigurationFragment::getConfiguration)
                 .flatMap(Optional::stream)
                 .reduce(reducer);
 
-        return new AggregateConfiguration<>(entry.getKey(), configuration.orElse(null));
+        return new ComposedConfigurationImpl<>(entry.getKey(), configuration.orElse(null));
     }
 
     @Override
-    public Stream<AGG> aggregationIds() {
-        return aggregateLookup.keys().stream();
+    public Stream<K> compositionKeys() {
+        return composedLookup.keys().stream();
     }
 
     @Override
-    public void register(ConfigurationFragment<ID, AGG, C> fragment) {
+    public void register(ConfigurationFragment<F, K, C> fragment) {
         lookup.add(fragment);
     }
 
     @Override
-    public void revoke(ID fragmentId) {
+    public void revoke(F fragmentId) {
         lookup.remove(fragmentId);
     }
 
     @Override
-    public Flux<UpdateEvent<AggregateIdConfiguration<AGG, C>>> observe() {
-        return aggregateLookup.observe()
-                .map(event -> event.mapValue(this::createAggregate));
+    public Flux<UpdateEvent<ComposedConfiguration<K, C>>> observe() {
+        return composedLookup.observe()
+                .map(event -> event.mapValue(this::composeConfiguration));
     }
 
     @Override
@@ -74,9 +74,9 @@ public class ComposedConfigurationRepository<ID, AGG, C> implements Configuratio
     }
 
     @Value
-    private static class AggregateConfiguration<AGG, C> implements AggregateIdConfiguration<AGG, C> {
+    private static class ComposedConfigurationImpl<K, C> implements ComposedConfiguration<K, C> {
         @NonNull
-        AGG aggregateId;
+        K compositionKey;
 
         C configuration;
 

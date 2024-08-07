@@ -5,6 +5,6 @@ import lombok.Data;
 
 @Data
 public class ConfigurationDiscoveryProperties {
-    private String aggregateId;
+    private String compositionKey;
     private Map<String, String> configuration;
 }

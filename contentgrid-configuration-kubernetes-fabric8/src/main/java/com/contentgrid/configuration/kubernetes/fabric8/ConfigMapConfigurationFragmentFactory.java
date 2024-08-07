@@ -9,17 +9,17 @@ import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
 
 @RequiredArgsConstructor
-public class ConfigMapConfigurationFragmentFactory<AGG, C> implements ConfigurationFragmentFactory<ConfigMap, String, AGG, C> {
+public class ConfigMapConfigurationFragmentFactory<K, C> implements ConfigurationFragmentFactory<ConfigMap, String, K, C> {
     @NonNull
-    private final Function<ConfigMap, AGG> aggregationFunction;
+    private final Function<ConfigMap, K> compositionKeyFunction;
     @NonNull
     private final Function<Map<String, String>, C> configurationFunction;
 
     @Override
-    public ConfigurationFragment<String, AGG, C> createFragment(ConfigMap fragment) {
+    public ConfigurationFragment<String, K, C> createFragment(ConfigMap fragment) {
         return new ConfigurationFragment<>(
                 fragment.getMetadata().getUid(),
-                aggregationFunction.apply(fragment),
+                compositionKeyFunction.apply(fragment),
                 configurationFunction.apply(fragment.getData())
         );
     }

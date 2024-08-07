@@ -28,7 +28,7 @@ public class SpringPropertiesMappingApplicationConfiguration {
             ConfigurationFragmentFactory<Map.Entry<String, ConfigurationDiscoveryProperties>, String, ApplicationId, ApplicationConfiguration> fragmentFactory
     ) {
         return new SpringPropertiesConfigurationFragmentObservable<>(
-                staticConfigurationProperties.getApplications(),
+                staticConfigurationProperties.getContentgridApps(),
                 fragmentFactory
         );
     }

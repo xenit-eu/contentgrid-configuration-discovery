@@ -1,17 +1,16 @@
 package com.contentgrid.configuration.api.fragments;
 
-import com.contentgrid.configuration.api.fragments.ConfigurationFragment;
 import com.contentgrid.configuration.api.observable.Observable;
 import com.contentgrid.configuration.api.observable.Observer;
 
-public interface DynamicallyConfigurable<ID, AGG, C> extends Observer<ConfigurationFragment<ID, AGG, C>> {
+public interface DynamicallyConfigurable<F, K, C> extends Observer<ConfigurationFragment<F, K, C>> {
 
-    void register(ConfigurationFragment<ID, AGG, C> fragment);
+    void register(ConfigurationFragment<F, K, C> fragment);
 
-    void revoke(ID fragmentId);
+    void revoke(F fragmentId);
 
     @Override
-    default void subscribe(Observable<ConfigurationFragment<ID, AGG, C>> observable) {
+    default void subscribe(Observable<ConfigurationFragment<F, K, C>> observable) {
         observable.observe().subscribe(event -> {
             switch (event.getType()) {
                 case ADD, UPDATE -> register(event.getValue());

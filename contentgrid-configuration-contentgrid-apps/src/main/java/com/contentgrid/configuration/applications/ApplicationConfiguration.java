@@ -1,6 +1,6 @@
 package com.contentgrid.configuration.applications;
 
-import com.contentgrid.configuration.api.AggregateIdConfiguration;
+import com.contentgrid.configuration.api.ComposedConfiguration;
 import java.util.Arrays;
 import java.util.HashSet;
 import java.util.Map;
@@ -64,10 +64,10 @@ public class ApplicationConfiguration {
         );
     }
 
-    public AggregateIdConfiguration<ApplicationId, ApplicationConfiguration> forApplication(ApplicationId applicationId) {
-        return new AggregateIdConfiguration<>() {
+    public ComposedConfiguration<ApplicationId, ApplicationConfiguration> forApplication(ApplicationId applicationId) {
+        return new ComposedConfiguration<>() {
             @Override
-            public ApplicationId getAggregateId() {
+            public ApplicationId getCompositionKey() {
                 return applicationId;
             }
 
@@ -103,7 +103,7 @@ public class ApplicationConfiguration {
     }
 
     public static class ApplicationConfigurationBuilder {
-        public AggregateIdConfiguration<ApplicationId, ApplicationConfiguration> buildForApplication(ApplicationId applicationId) {
+        public ComposedConfiguration<ApplicationId, ApplicationConfiguration> buildForApplication(ApplicationId applicationId) {
             return build().forApplication(applicationId);
         }
     }

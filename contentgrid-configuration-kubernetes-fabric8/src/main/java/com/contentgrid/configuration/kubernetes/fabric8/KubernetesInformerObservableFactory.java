@@ -20,9 +20,9 @@ public class KubernetesInformerObservableFactory implements AutoCloseable {
     private final Set<AutoCloseable> closeables = new HashSet<>();
 
 
-    public <T extends HasMetadata, ID, AGG, C> Observable<ConfigurationFragment<ID, AGG, C>> inform(
+    public <T extends HasMetadata, F, K, C> Observable<ConfigurationFragment<F, K, C>> inform(
             Function<KubernetesClient, Informable<T>> resourceSelector,
-            ConfigurationFragmentFactory<T, ID, AGG, C> configurationFragmentFactory
+            ConfigurationFragmentFactory<T, F, K, C> configurationFragmentFactory
     ) {
         var informer = resourceSelector.apply(kubernetesClient)
                 .runnableInformer(resyncInterval.toMillis());

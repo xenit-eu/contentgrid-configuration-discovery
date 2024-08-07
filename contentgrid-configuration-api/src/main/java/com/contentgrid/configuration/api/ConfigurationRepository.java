@@ -2,8 +2,8 @@ package com.contentgrid.configuration.api;
 
 import java.util.stream.Stream;
 
-public interface ConfigurationRepository<AGG, C> {
-    HasConfiguration<C> findConfiguration(AGG aggregationId);
+public interface ConfigurationRepository<K, C> {
+    HasConfiguration<C> findConfiguration(K compositionKey);
 
-    Stream<AGG> aggregationIds();
+    Stream<K> compositionKeys();
 }
