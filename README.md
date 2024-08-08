@@ -27,9 +27,9 @@ Configuration is automatically updated when changes are made in Kubernetes.
 
 This module can be automatically configured when a `KubernetesClient` bean is available. (e.g. when using spring-cloud-kubernetes)
 
-| Property                                                   | Type   | Description                                                                                                                                                                                                             |
-|------------------------------------------------------------|--------|-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
-| `contentgrid.configuration.discovery.kubernetes.namespace` | string | Sets the kubernetes namespace in which configuration discovery will be done. If unset, defaults to the namespace that the application is deployed in (or `default` if the application is running outside of Kubernetes) |
+| Property                                                   | Type     | Description                                                                                                                                                                                                             |
+|------------------------------------------------------------|----------|-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| `contentgrid.configuration.discovery.kubernetes.namespace` | `string` | Sets the kubernetes namespace in which configuration discovery will be done. If unset, defaults to the namespace that the application is deployed in (or `default` if the application is running outside of Kubernetes) |
 
 
 Other configuration for the Kubernetes client should be done in [spring-cloud-kubernetes](https://docs.spring.io/spring-cloud-kubernetes/docs/current/reference/html/appendix.html), or a custom created `KubernetesClient`.
@@ -42,10 +42,13 @@ Reads spring properties underneath `contentgrid.configuration.static`. These pro
 
 Different sub-properties are available, depending on the chosen configuration definitions modules.
 
-| Property                                                                         | Type                  | Description                                       |
-|----------------------------------------------------------------------------------|-----------------------|---------------------------------------------------|
-| `contentgrid.configuration.static.<definition-name>.[config-id].composition-key` | string                | Aggregation ID to combine multiple configurations |
-| `contentgrid.configuration.static.<definition-name>.[config-id].configuration`   | `map<string, string>` | Configuration properties                          |
+| Property                                                                         | Type                  | Description                                        |
+|----------------------------------------------------------------------------------|-----------------------|----------------------------------------------------|
+| `contentgrid.configuration.static.<definition-name>.[config-id].composition-key` | `string`              | Composition key to combine multiple configurations |
+| `contentgrid.configuration.static.<definition-name>.[config-id].configuration`   | `map<string, string>` | Configuration properties                           |
+
+The `definition-name` is dependent on the configuration definition module.
+The `config-id` is an arbitrary, unique identifier of a configuration fragment. This allows partially overriding configurations from different configuration files.
 
 ### Configuration definitions modules
 
