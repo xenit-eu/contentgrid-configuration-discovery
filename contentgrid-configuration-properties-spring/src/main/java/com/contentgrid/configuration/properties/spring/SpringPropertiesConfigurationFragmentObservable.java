@@ -8,12 +8,12 @@ import lombok.RequiredArgsConstructor;
 import reactor.core.publisher.Flux;
 
 @RequiredArgsConstructor
-public class SpringPropertiesConfigurationFragmentObservable<AGG, C> implements Observable<ConfigurationFragment<String, AGG, C>> {
+public class SpringPropertiesConfigurationFragmentObservable<K, C> implements Observable<ConfigurationFragment<String, K, C>> {
     private final Map<String, ConfigurationDiscoveryProperties> properties;
-    private final ConfigurationFragmentFactory<Map.Entry<String, ConfigurationDiscoveryProperties>, String, AGG, C> fragmentFactory;
+    private final ConfigurationFragmentFactory<Map.Entry<String, ConfigurationDiscoveryProperties>, String, K, C> fragmentFactory;
 
     @Override
-    public Flux<UpdateEvent<ConfigurationFragment<String, AGG, C>>> observe() {
+    public Flux<UpdateEvent<ConfigurationFragment<String, K, C>>> observe() {
         return Flux.fromIterable(properties.entrySet())
                 .map(fragmentFactory::createFragment)
                 .map(fragment -> new UpdateEvent<>(UpdateType.ADD, fragment));

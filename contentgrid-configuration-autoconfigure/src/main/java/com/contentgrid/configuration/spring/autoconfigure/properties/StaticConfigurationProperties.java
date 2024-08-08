@@ -8,5 +8,5 @@ import org.springframework.boot.context.properties.ConfigurationProperties;
 @Data
 @ConfigurationProperties("contentgrid.configuration.static")
 public class StaticConfigurationProperties {
-    private Map<String, ConfigurationDiscoveryProperties> applications;
+    private Map<String, ConfigurationDiscoveryProperties> contentgridApps;
 }

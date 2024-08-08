@@ -3,7 +3,7 @@ package com.contentgrid.configuration.api.fragments;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.awaitility.Awaitility.await;
 
-import com.contentgrid.configuration.api.AggregateIdConfiguration;
+import com.contentgrid.configuration.api.ComposedConfiguration;
 import com.contentgrid.configuration.api.observable.Observable.UpdateType;
 import com.contentgrid.configuration.api.observable.Publisher;
 import com.contentgrid.configuration.api.test.ObservableUtils;
@@ -50,7 +50,7 @@ class ComposedConfigurationRepositoryTest {
         assertThat(repo.findConfiguration("abc").getConfiguration()).hasValue(
                 new TestConfiguration("xyz", Set.of("ZZZ", "AAA", "BBB")));
 
-        var events = ObservableUtils.eventsToConcurrentLookup(repo, AggregateIdConfiguration::getAggregateId);
+        var events = ObservableUtils.eventsToConcurrentLookup(repo, ComposedConfiguration::getCompositionKey);
 
         awaitUntilAsserted(() -> {
             assertThat(events.keys()).containsExactly("abc");
@@ -100,7 +100,7 @@ class ComposedConfigurationRepositoryTest {
     void revokeNonExistingFragment() throws Exception {
         var repo = new ComposedConfigurationRepository<String, String, TestConfiguration>(TestConfiguration::merge);
 
-        var events = ObservableUtils.eventsToConcurrentLookup(repo, AggregateIdConfiguration::getAggregateId);
+        var events = ObservableUtils.eventsToConcurrentLookup(repo, ComposedConfiguration::getCompositionKey);
 
         repo.register(new ConfigurationFragment<>("test", "abc", new TestConfiguration("xyz", Set.of())));
         repo.revoke("xyz");
@@ -118,7 +118,7 @@ class ComposedConfigurationRepositoryTest {
     void registerFragmentToNewAggregate() throws Exception {
         var repo = new ComposedConfigurationRepository<String, String, TestConfiguration>(TestConfiguration::merge);
 
-        var events = ObservableUtils.eventsToConcurrentLookup(repo, AggregateIdConfiguration::getAggregateId);
+        var events = ObservableUtils.eventsToConcurrentLookup(repo, ComposedConfiguration::getCompositionKey);
 
         repo.register(new ConfigurationFragment<>("test", "abc", new TestConfiguration("xyz", Set.of())));
 
@@ -141,7 +141,7 @@ class ComposedConfigurationRepositoryTest {
     void reRegisterFragment() throws Exception {
         var repo = new ComposedConfigurationRepository<String, String, TestConfiguration>(TestConfiguration::merge);
 
-        var events = ObservableUtils.eventsToConcurrentLookup(repo, AggregateIdConfiguration::getAggregateId);
+        var events = ObservableUtils.eventsToConcurrentLookup(repo, ComposedConfiguration::getCompositionKey);
 
         repo.register(new ConfigurationFragment<>("test", "abc", new TestConfiguration("xyz", Set.of("ZZZ"))));
 
@@ -164,11 +164,11 @@ class ComposedConfigurationRepositoryTest {
         var publisher = new Publisher<ConfigurationFragment<String, String, TestConfiguration>>();
         var repo = new ComposedConfigurationRepository<>(TestConfiguration::merge, publisher);
 
-        assertThat(repo.aggregationIds()).isEmpty();
+        assertThat(repo.compositionKeys()).isEmpty();
 
         publisher.emit(UpdateType.ADD, new ConfigurationFragment<>("test", "abc", new TestConfiguration("xyz", Set.of("ZZZ"))));
 
-        assertThat(repo.aggregationIds()).containsExactly("abc");
+        assertThat(repo.compositionKeys()).containsExactly("abc");
         assertThat(repo.findConfiguration("abc").getConfiguration()).hasValue(new TestConfiguration("xyz", Set.of("ZZZ")));
 
         publisher.emit(UpdateType.UPDATE, new ConfigurationFragment<>("test", "abc", new TestConfiguration("xyz", Set.of("UUU"))));
@@ -176,7 +176,7 @@ class ComposedConfigurationRepositoryTest {
 
         publisher.emit(UpdateType.REMOVE, new ConfigurationFragment<>("test", "abc", new TestConfiguration("xyz", Set.of("UUU"))));
 
-        assertThat(repo.aggregationIds()).isEmpty();
+        assertThat(repo.compositionKeys()).isEmpty();
 
         publisher.close();
         repo.close();

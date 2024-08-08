@@ -5,13 +5,13 @@ import java.util.function.Function;
 import lombok.RequiredArgsConstructor;
 
 @RequiredArgsConstructor
-class MappedConfiguration<AGG, C, T> implements AggregateIdConfiguration<AGG, T> {
-    private final AggregateIdConfiguration<AGG, C> configuration;
+class MappedConfiguration<F, C, T> implements ComposedConfiguration<F, T> {
+    private final ComposedConfiguration<F, C> configuration;
     private final Function<C, T> mapper;
 
     @Override
-    public AGG getAggregateId() {
-        return configuration.getAggregateId();
+    public F getCompositionKey() {
+        return configuration.getCompositionKey();
     }
 
     @Override
@@ -20,7 +20,7 @@ class MappedConfiguration<AGG, C, T> implements AggregateIdConfiguration<AGG, T>
     }
 
     @Override
-    public <T1> AggregateIdConfiguration<AGG, T1> map(Function<T, T1> mapper) {
+    public <T1> ComposedConfiguration<F, T1> map(Function<T, T1> mapper) {
         return new MappedConfiguration<>(configuration, this.mapper.andThen(mapper));
     }
 }

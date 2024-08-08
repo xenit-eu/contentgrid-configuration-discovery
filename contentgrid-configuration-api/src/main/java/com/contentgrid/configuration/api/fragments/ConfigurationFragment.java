@@ -1,18 +1,17 @@
 package com.contentgrid.configuration.api.fragments;
 
-import com.contentgrid.configuration.api.AggregateIdConfiguration;
+import com.contentgrid.configuration.api.ComposedConfiguration;
 import java.util.Optional;
 import java.util.function.Function;
 import lombok.NonNull;
-import lombok.ToString;
 import lombok.Value;
 
 @Value
-public class ConfigurationFragment<ID, AGG, C> implements AggregateIdConfiguration<AGG, C> {
+public class ConfigurationFragment<ID, AGG, C> implements ComposedConfiguration<AGG, C> {
     @NonNull
     ID fragmentId;
     @NonNull
-    AGG aggregateId;
+    AGG compositionKey;
 
     C configuration;
 
@@ -26,6 +25,6 @@ public class ConfigurationFragment<ID, AGG, C> implements AggregateIdConfigurati
             // The mismatch of configuration does not matter, because it is null anyways
             return (ConfigurationFragment<ID, AGG, T>) this;
         }
-        return new ConfigurationFragment<>(fragmentId, aggregateId, mapper.apply(configuration));
+        return new ConfigurationFragment<>(fragmentId, compositionKey, mapper.apply(configuration));
     }
 }

@@ -1,6 +1,6 @@
 package com.contentgrid.configuration.api.fragments;
 
-public interface ConfigurationFragmentFactory<T, ID, AGG, C> {
+public interface ConfigurationFragmentFactory<T, F, K, C> {
 
-    ConfigurationFragment<ID, AGG, C> createFragment(T fragment);
+    ConfigurationFragment<F, K, C> createFragment(T fragment);
 }

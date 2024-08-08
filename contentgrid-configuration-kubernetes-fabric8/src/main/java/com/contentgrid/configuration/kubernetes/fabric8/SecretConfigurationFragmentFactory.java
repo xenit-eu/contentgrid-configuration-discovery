@@ -11,17 +11,17 @@ import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
 
 @RequiredArgsConstructor
-public class SecretConfigurationFragmentFactory<AGG, C> implements ConfigurationFragmentFactory<Secret, String, AGG, C> {
+public class SecretConfigurationFragmentFactory<K, C> implements ConfigurationFragmentFactory<Secret, String, K, C> {
     @NonNull
-    private final Function<Secret, AGG> aggregationFunction;
+    private final Function<Secret, K> compositionKeyFunction;
     @NonNull
     private final Function<Map<String, String>, C> configurationFunction;
 
     @Override
-    public ConfigurationFragment<String, AGG, C> createFragment(Secret fragment) {
+    public ConfigurationFragment<String, K, C> createFragment(Secret fragment) {
         return new ConfigurationFragment<>(
                 fragment.getMetadata().getUid(),
-                aggregationFunction.apply(fragment),
+                compositionKeyFunction.apply(fragment),
                 configurationFunction.apply(base64decode(fragment.getData()))
         );
     }

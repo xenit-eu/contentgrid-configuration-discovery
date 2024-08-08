@@ -8,18 +8,18 @@ import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
 
 @RequiredArgsConstructor
-public class SpringPropertiesConfigurationFragmentFactory<AGG, C> implements ConfigurationFragmentFactory<Map.Entry<String, ConfigurationDiscoveryProperties>, String, AGG, C> {
+public class SpringPropertiesConfigurationFragmentFactory<K, C> implements ConfigurationFragmentFactory<Map.Entry<String, ConfigurationDiscoveryProperties>, String, K, C> {
     @NonNull
-    private final Function<String, AGG> aggregationFunction;
+    private final Function<String, K> compositionKeyFunction;
 
     @NonNull
     private final Function<Map<String, String>, C> configurationFunction;
 
     @Override
-    public ConfigurationFragment<String, AGG, C> createFragment(Map.Entry<String, ConfigurationDiscoveryProperties> fragment) {
+    public ConfigurationFragment<String, K, C> createFragment(Map.Entry<String, ConfigurationDiscoveryProperties> fragment) {
         return new ConfigurationFragment<>(
                 fragment.getKey(),
-                aggregationFunction.apply(fragment.getValue().getAggregateId()),
+                compositionKeyFunction.apply(fragment.getValue().getCompositionKey()),
                 configurationFunction.apply(fragment.getValue().getConfiguration())
         );
     }
