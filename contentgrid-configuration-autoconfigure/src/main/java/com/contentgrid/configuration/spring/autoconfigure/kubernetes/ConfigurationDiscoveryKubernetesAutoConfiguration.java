@@ -19,7 +19,7 @@ import org.springframework.context.annotation.Import;
 @Import(KubernetesConfigurationMappingApplicationConfiguration.class)
 public class ConfigurationDiscoveryKubernetesAutoConfiguration {
 
-    @Bean
+    @Bean(name = "com.contentgrid.configuration.kubernetes.fabric8.KubernetesInformerObservableFactory")
     @ConditionalOnMissingBean
     KubernetesInformerObservableFactory kubernetesInformerConfigurationFragmentObservableFactory(
             KubernetesClient kubernetesClient

@@ -1,6 +1,5 @@
 package com.contentgrid.configuration.spring.autoconfigure.kubernetes;
 
-import com.contentgrid.configuration.api.fragments.DynamicallyConfigurable;
 import com.contentgrid.configuration.api.fragments.ConfigurationFragment;
 import com.contentgrid.configuration.api.fragments.ConfigurationFragmentFactory;
 import com.contentgrid.configuration.api.observable.Observable;
@@ -14,15 +13,17 @@ import io.fabric8.kubernetes.api.model.HasMetadata;
 import io.fabric8.kubernetes.api.model.LabelSelector;
 import io.fabric8.kubernetes.api.model.LabelSelectorBuilder;
 import io.fabric8.kubernetes.api.model.Secret;
-import java.util.List;
-import org.springframework.boot.ApplicationRunner;
+import org.springframework.beans.factory.ObjectProvider;
+import org.springframework.beans.factory.config.BeanDefinition;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnClass;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.Role;
 
 @Configuration(proxyBeanMethods = false)
 @ConditionalOnClass({KubernetesInformerObservableFactory.class, ApplicationConfiguration.class})
 public class KubernetesConfigurationMappingApplicationConfiguration {
+    private static final String BEAN_PREFIX = "com.contentgrid.configuration.spring.autoconfigure.KubernetesConfigurationMappingApplicationConfiguration#";
     private static final String LABEL_CONTENTGRID_APPID = "app.contentgrid.com/application-id";
 
     private static final LabelSelector CONFIG_LABEL_SELECTOR = new LabelSelectorBuilder()
@@ -33,46 +34,43 @@ public class KubernetesConfigurationMappingApplicationConfiguration {
             .endMatchExpression()
             .build();
 
-    @Bean
+    @Bean(name = "com.contentgrid.configuration.spring.autoconfigure.kubernetes.KubernetesResourceFilter")
+    @Role(BeanDefinition.ROLE_INFRASTRUCTURE)
     KubernetesResourceFilter kubernetesResourceFilter(ConfigurationDiscoveryKubernetesProperties configurationDiscoveryKubernetesProperties) {
         return new KubernetesResourceFilter(configurationDiscoveryKubernetesProperties.getNamespace(), CONFIG_LABEL_SELECTOR);
     }
 
-    @Bean
-    ConfigurationFragmentFactory<ConfigMap, String, ApplicationId, ApplicationConfiguration> configMapApplicationConfigurationFragmentFactory() {
+    private ConfigurationFragmentFactory<ConfigMap, String, ApplicationId, ApplicationConfiguration> configMapFragmentFactory() {
         return new ConfigMapConfigurationFragmentFactory<>(
                 KubernetesConfigurationMappingApplicationConfiguration::createApplicationIdFromMetadata,
                 ApplicationConfiguration::fromMap
         );
     }
 
-    @Bean
-    Observable<ConfigurationFragment<String, ApplicationId, ApplicationConfiguration>> configMapApplicationConfigurationFragmentObservable(
+    @Bean(name = BEAN_PREFIX + "configMapObservable")
+    Observable<ConfigurationFragment<String, ApplicationId, ApplicationConfiguration>> configMapObservable(
             KubernetesResourceFilter resourceFilter,
             KubernetesInformerObservableFactory observableFactory,
-            ConfigurationFragmentFactory<ConfigMap, String, ApplicationId, ApplicationConfiguration> fragmentFactory
+            ObjectProvider<ConfigurationFragmentFactory<ConfigMap, String, ApplicationId, ApplicationConfiguration>> fragmentFactory
     ) {
-        return observableFactory.inform(kc -> resourceFilter.filter(kc.configMaps()), fragmentFactory);
+        return observableFactory.inform(kc -> resourceFilter.filter(kc.configMaps()), fragmentFactory.getIfAvailable(this::configMapFragmentFactory));
     }
 
-    @Bean
-    ConfigurationFragmentFactory<Secret, String, ApplicationId, ApplicationConfiguration> secretApplicationConfigurationFragmentFactory() {
+    private ConfigurationFragmentFactory<Secret, String, ApplicationId, ApplicationConfiguration> secretFragmentFactory() {
         return new SecretConfigurationFragmentFactory<>(
                 KubernetesConfigurationMappingApplicationConfiguration::createApplicationIdFromMetadata,
                 ApplicationConfiguration::fromMap
         );
     }
 
-    @Bean
-    Observable<ConfigurationFragment<String, ApplicationId, ApplicationConfiguration>> secretApplicationConfigurationFragmentObservable(
+    @Bean(name = BEAN_PREFIX + "secretObservable")
+    Observable<ConfigurationFragment<String, ApplicationId, ApplicationConfiguration>> secretObservable(
             KubernetesResourceFilter resourceFilter,
             KubernetesInformerObservableFactory observableFactory,
-            ConfigurationFragmentFactory<Secret, String, ApplicationId, ApplicationConfiguration> fragmentFactory
+            ObjectProvider<ConfigurationFragmentFactory<Secret, String, ApplicationId, ApplicationConfiguration>> fragmentFactory
     ) {
-        return observableFactory.inform(kc -> resourceFilter.filter(kc.secrets()), fragmentFactory);
+        return observableFactory.inform(kc -> resourceFilter.filter(kc.secrets()), fragmentFactory.getIfAvailable(this::secretFragmentFactory));
     }
-
-
 
     private static ApplicationId createApplicationIdFromMetadata(HasMetadata cm) {
         return ApplicationId.from(cm.getMetadata().getLabels().get(LABEL_CONTENTGRID_APPID));
