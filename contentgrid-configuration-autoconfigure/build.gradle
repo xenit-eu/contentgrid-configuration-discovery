@@ -6,8 +6,16 @@ plugins {
 
 description = "ContentGrid configuration discovery: Spring autoconfiguration"
 
+configurations {
+    // All things that are compileOnly should be available at runtime for the tests
+    testImplementation.extendsFrom(compileOnly)
+}
+
 dependencies {
-    compileOnly 'org.springframework.boot:spring-boot-autoconfigure:3.3.2'
+    compileOnly platform('org.springframework.boot:spring-boot-dependencies:3.3.2')
+    testImplementation platform('org.springframework.boot:spring-boot-dependencies:3.3.2')
+
+    compileOnly 'org.springframework.boot:spring-boot-autoconfigure'
     compileOnly 'org.springframework.cloud:spring-cloud-kubernetes-fabric8-autoconfig:3.1.3'
 
     compileOnly project(':contentgrid-configuration-kubernetes-fabric8')
@@ -15,6 +23,7 @@ dependencies {
 
     compileOnly project(':contentgrid-configuration-api')
     compileOnly project(':contentgrid-configuration-contentgrid-apps')
-    
+
+    testImplementation 'org.springframework.boot:spring-boot-starter-test'
 }
 
