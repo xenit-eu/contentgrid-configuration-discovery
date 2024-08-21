@@ -51,6 +51,18 @@ class ConfigurationDiscoveryKubernetesAutoConfigurationTest {
     }
 
     @Test
+    void doesNotActivate_propertyDisabled() {
+        contextRunner
+                .withBean(KubernetesClient.class, () -> {
+                    return Mockito.mock(KubernetesClient.class, Mockito.RETURNS_MOCKS);
+                })
+                .withPropertyValues("contentgrid.configuration.discovery.kubernetes.enabled=false")
+                .run(context -> {
+                    assertThat(context.getBeanProvider(APPLICATION_OBSERVABLE)).isEmpty();
+                });
+    }
+
+    @Test
     void doesNotActivate_missingApplicationClass() {
         contextRunner
                 .withClassLoader(new FilteredClassLoader(ClassLoaderFilters.CONTENTGRID_APPS))

@@ -27,9 +27,10 @@ Configuration is automatically updated when changes are made in Kubernetes.
 
 This module can be automatically configured when a `KubernetesClient` bean is available. (e.g. when using spring-cloud-kubernetes)
 
-| Property                                                   | Type     | Description                                                                                                                                                                                                             |
-|------------------------------------------------------------|----------|-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
-| `contentgrid.configuration.discovery.kubernetes.namespace` | `string` | Sets the kubernetes namespace in which configuration discovery will be done. If unset, defaults to the namespace that the application is deployed in (or `default` if the application is running outside of Kubernetes) |
+| Property                                                   | Type      | Description                                                                                                                                                                                                             |
+|------------------------------------------------------------|-----------|-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| `contentgrid.configuration.discovery.kubernetes.enabled`   | `boolean` | Enables configuration discovery through Kubernetes (default `true`)                                                                                                                                                     |
+| `contentgrid.configuration.discovery.kubernetes.namespace` | `string`  | Sets the kubernetes namespace in which configuration discovery will be done. If unset, defaults to the namespace that the application is deployed in (or `default` if the application is running outside of Kubernetes) |
 
 
 Other configuration for the Kubernetes client should be done in [spring-cloud-kubernetes](https://docs.spring.io/spring-cloud-kubernetes/docs/current/reference/html/appendix.html), or a custom created `KubernetesClient`.
