@@ -3,6 +3,8 @@ plugins {
     id 'maven-publish'
 }
 
+description 'ContentGrid configuration discovery Bill of Materials'
+
 dependencies {
     constraints {
         rootProject.subprojects.forEach {

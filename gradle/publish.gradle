@@ -5,8 +5,8 @@ publishing {
         all {
             pom {
                 url = 'https://github.com/xenit-eu/contentgrid-configuration-discovery'
-                name = "${project.name}"
-                description = "${project.description}"
+                name = project.name
+                description = project.provider { project.description }
 
                 scm {
                     connection = 'scm:git:git@github.com:xenit-eu/contentgrid-configuration-discovery.git'
@@ -57,6 +57,14 @@ pluginManager.withPlugin('java-library') {
         publications {
             library(MavenPublication) {
                 from components.java
+                versionMapping {
+                    usage("java-api") {
+                        fromResolutionResult()
+                    }
+                    usage("java-runtime") {
+                        fromResolutionResult()
+                    }
+                }
             }
         }
     }
