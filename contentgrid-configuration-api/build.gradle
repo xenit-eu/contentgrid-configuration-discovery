@@ -9,7 +9,7 @@ plugins {
 description = "ContentGrid configuration discovery: Core API"
 
 dependencies {
-    api 'io.projectreactor:reactor-core:3.6.10'
+    api 'io.projectreactor:reactor-core:3.6.11'
     implementation 'org.slf4j:slf4j-api:2.0.16'
 
     testImplementation 'org.assertj:assertj-core:3.26.3'
