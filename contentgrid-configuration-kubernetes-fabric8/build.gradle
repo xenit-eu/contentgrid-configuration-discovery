@@ -12,7 +12,7 @@ dependencies {
     api project(':contentgrid-configuration-api')
 
     api 'io.fabric8:kubernetes-client'
-    runtimeOnly 'org.bouncycastle:bcpkix-jdk18on:1.78.1'
+    runtimeOnly 'org.bouncycastle:bcpkix-jdk18on:1.79'
 
     testImplementation testFixtures(project(':contentgrid-configuration-api'))
     testImplementation 'org.assertj:assertj-core:3.26.3'
