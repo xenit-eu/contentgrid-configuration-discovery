@@ -14,5 +14,5 @@ dependencies {
 
     testImplementation 'org.assertj:assertj-core:3.27.3'
     testImplementation 'io.projectreactor:reactor-test:3.7.3'
-    testImplementation 'org.awaitility:awaitility:4.2.2'
+    testImplementation 'org.awaitility:awaitility:4.3.0'
 }
