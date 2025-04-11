@@ -36,7 +36,7 @@ allprojects {
                 // Configure the built-in test suite
                 test {
                     // Use JUnit Jupiter test framework
-                    useJUnitJupiter('5.12.1')
+                    useJUnitJupiter('5.12.2')
                 }
             }
         }
