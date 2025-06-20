@@ -12,11 +12,11 @@ configurations {
 }
 
 dependencies {
-    compileOnly platform('org.springframework.boot:spring-boot-dependencies:3.4.6')
-    testImplementation platform('org.springframework.boot:spring-boot-dependencies:3.4.6')
+    compileOnly platform('org.springframework.boot:spring-boot-dependencies:3.5.3')
+    testImplementation platform('org.springframework.boot:spring-boot-dependencies:3.5.3')
 
     compileOnly 'org.springframework.boot:spring-boot-autoconfigure'
-    compileOnly 'org.springframework.cloud:spring-cloud-kubernetes-fabric8-autoconfig:3.2.1'
+    compileOnly 'org.springframework.cloud:spring-cloud-kubernetes-fabric8-autoconfig:3.3.0'
 
     compileOnly project(':contentgrid-configuration-kubernetes-fabric8')
     compileOnly project(':contentgrid-configuration-properties-spring')
