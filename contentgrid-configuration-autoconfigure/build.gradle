@@ -12,8 +12,8 @@ configurations {
 }
 
 dependencies {
-    compileOnly platform('org.springframework.boot:spring-boot-dependencies:3.5.3')
-    testImplementation platform('org.springframework.boot:spring-boot-dependencies:3.5.3')
+    compileOnly platform('org.springframework.boot:spring-boot-dependencies:3.5.4')
+    testImplementation platform('org.springframework.boot:spring-boot-dependencies:3.5.4')
 
     compileOnly 'org.springframework.boot:spring-boot-autoconfigure'
     compileOnly 'org.springframework.cloud:spring-cloud-kubernetes-fabric8-autoconfig:3.3.0'
