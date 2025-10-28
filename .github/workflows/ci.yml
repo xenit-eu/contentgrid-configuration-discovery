@@ -22,3 +22,16 @@ jobs:
           ORG_GRADLE_PROJECT_mavenCentralPublishUsername: ${{ secrets.MAVEN_CENTRAL_USERNAME }}
           ORG_GRADLE_PROJECT_mavenCentralPublishPassword: ${{ secrets.MAVEN_CENTRAL_PASSWORD }}
         run: ./gradlew publish
+  jcstress:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v5
+        with:
+          fetch-depth: 0
+      - uses: actions/setup-java@v5
+        with:
+          distribution: temurin
+          java-version: 17
+      - name: Run JCStress
+        run: ./gradlew jcstress
+
