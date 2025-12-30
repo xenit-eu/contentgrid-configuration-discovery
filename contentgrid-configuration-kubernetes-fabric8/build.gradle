@@ -18,7 +18,7 @@ dependencies {
     testImplementation 'org.assertj:assertj-core:3.27.6'
     testImplementation 'org.awaitility:awaitility:4.3.0'
 
-    testImplementation platform('org.testcontainers:testcontainers-bom:1.21.3')
+    testImplementation platform('org.testcontainers:testcontainers-bom:1.21.4')
     testImplementation 'org.testcontainers:testcontainers'
     testImplementation 'org.testcontainers:junit-jupiter'
     testImplementation 'org.testcontainers:k3s'
