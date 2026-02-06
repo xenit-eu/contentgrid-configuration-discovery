@@ -61,13 +61,14 @@ Module: `com.contentgrid.configuration:contentgrid-configuration-contentgrid-app
 
 Configuration for ContentGrid Apps.
 
-| Configuration key               | Type           | Description                                                                   |
-|---------------------------------|----------------|-------------------------------------------------------------------------------|
-| `contentgrid.idp.client-id`     | `string`       | OIDC client ID for authenticating users to the application                    |
-| `contentgrid.idp.client-secret` | `string`       | OIDC client Secret for confidential clients                                   |
-| `contentgrid.idp.issuer-uri`    | `uri`          | OIDC issuer for authenticating users and JWT bearer tokens                    |
-| `contentgrid.routing.domains`   | `list<string>` | Comma-separated list of domain names that the application will listen on      |
-| `contentgrid.cors.origins`      | `list<string>` | Comma-separated list of origins that are trusted for CORS for the application |
+| Configuration key                        | Type           | Description                                                                   |
+|------------------------------------------|----------------|-------------------------------------------------------------------------------|
+| `contentgrid.idp.client-id`              | `string`       | OIDC client ID for authenticating users to the application                    |
+| `contentgrid.idp.client-secret`          | `string`       | OIDC client Secret for confidential clients                                   |
+| `contentgrid.idp.issuer-uri`             | `uri`          | OIDC issuer for authenticating users and JWT bearer tokens                    |
+| `contentgrid.idp.additional-issuer-uris` | `list<uri>`    | Additional issuer uris for authenticating JWT bearer tokens                   |
+| `contentgrid.routing.domains`            | `list<string>` | Comma-separated list of domain names that the application will listen on      |
+| `contentgrid.cors.origins`               | `list<string>` | Comma-separated list of origins that are trusted for CORS for the application |
 
 
 In Kubernetes, the configuration is read from ConfigMap and Service with labels:

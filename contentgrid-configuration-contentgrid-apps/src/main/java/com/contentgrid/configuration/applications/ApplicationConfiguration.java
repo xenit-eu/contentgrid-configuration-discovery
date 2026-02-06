@@ -24,6 +24,10 @@ public class ApplicationConfiguration {
     String issuerUri;
 
     @NonNull
+    @Singular("additionalIssuerUri")
+    Set<String> additionalIssuerUris;
+
+    @NonNull
     @Singular
     Set<String> routingDomains;
 
@@ -37,6 +41,7 @@ public class ApplicationConfiguration {
         public static final String CLIENT_ID = "contentgrid.idp.client-id";
         public static final String CLIENT_SECRET = "contentgrid.idp.client-secret";
         public static final String ISSUER_URI = "contentgrid.idp.issuer-uri";
+        public static final String ADDITIONAL_ISSUER_URIS = "contentgrid.idp.additional-issuer-uris";
 
         public static final String ROUTING_DOMAINS = "contentgrid.routing.domains";
         public static final String CORS_ORIGINS = "contentgrid.cors.origins";
@@ -49,6 +54,7 @@ public class ApplicationConfiguration {
                 configMap.get(Keys.CLIENT_ID),
                 configMap.get(Keys.CLIENT_SECRET),
                 configMap.get(Keys.ISSUER_URI),
+                split(configMap.get(Keys.ADDITIONAL_ISSUER_URIS)),
                 split(configMap.get(Keys.ROUTING_DOMAINS)),
                 split(configMap.get(Keys.CORS_ORIGINS))
         );
@@ -59,6 +65,7 @@ public class ApplicationConfiguration {
                 merge(clientId, other.clientId),
                 merge(clientSecret, other.clientSecret),
                 merge(issuerUri, other.issuerUri),
+                merge(additionalIssuerUris, other.additionalIssuerUris),
                 merge(routingDomains, other.routingDomains),
                 merge(corsOrigins, other.corsOrigins)
         );
