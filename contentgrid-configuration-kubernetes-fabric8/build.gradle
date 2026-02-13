@@ -23,5 +23,5 @@ dependencies {
     testImplementation 'org.testcontainers:testcontainers-junit-jupiter'
     testImplementation 'org.testcontainers:testcontainers-k3s'
 
-    testImplementation 'ch.qos.logback:logback-classic:1.5.26'
+    testImplementation 'ch.qos.logback:logback-classic:1.5.27'
 }
