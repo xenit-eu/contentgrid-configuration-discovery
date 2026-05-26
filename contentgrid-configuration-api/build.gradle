@@ -10,7 +10,7 @@ description = "ContentGrid configuration discovery: Core API"
 
 dependencies {
     api 'io.projectreactor:reactor-core:3.8.5'
-    implementation 'org.slf4j:slf4j-api:2.0.17'
+    implementation 'org.slf4j:slf4j-api:2.0.18'
 
     testImplementation 'org.assertj:assertj-core:3.27.7'
     testImplementation 'io.projectreactor:reactor-test:3.8.5'
