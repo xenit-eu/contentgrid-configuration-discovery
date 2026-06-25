@@ -16,7 +16,7 @@ dependencies {
     testImplementation platform('org.springframework.boot:spring-boot-dependencies:3.5.15')
 
     compileOnly 'org.springframework.boot:spring-boot-autoconfigure'
-    compileOnly 'org.springframework.cloud:spring-cloud-kubernetes-fabric8-autoconfig:3.3.2'
+    compileOnly 'org.springframework.cloud:spring-cloud-kubernetes-fabric8-autoconfig:3.3.3'
 
     compileOnly project(':contentgrid-configuration-kubernetes-fabric8')
     compileOnly project(':contentgrid-configuration-properties-spring')
