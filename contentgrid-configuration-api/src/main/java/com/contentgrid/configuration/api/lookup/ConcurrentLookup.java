@@ -4,7 +4,6 @@ import com.contentgrid.configuration.api.observable.Observable;
 import com.contentgrid.configuration.api.observable.Observer;
 import com.contentgrid.configuration.api.observable.Publisher;
 import java.util.Collection;
-import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
