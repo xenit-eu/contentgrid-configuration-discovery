@@ -1,12 +1,12 @@
 package com.contentgrid.configuration.applications;
 
 import com.contentgrid.configuration.api.ComposedConfiguration;
-import java.util.Arrays;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 import java.util.function.Predicate;
+import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 import lombok.Builder;
 import lombok.NonNull;
@@ -46,7 +46,7 @@ public class ApplicationConfiguration {
         public static final String ROUTING_DOMAINS = "contentgrid.routing.domains";
         public static final String CORS_ORIGINS = "contentgrid.cors.origins";
 
-        static final String DELIMITER_REGEX = "[,;]+";
+        static final Pattern DELIMITER_PATTERN = Pattern.compile("[,;]+");
     }
 
     public static ApplicationConfiguration fromMap(Map<String, String> configMap) {
@@ -103,7 +103,7 @@ public class ApplicationConfiguration {
         if(config == null || config.isBlank()) {
             return Set.of();
         }
-        return Arrays.stream(config.split(Keys.DELIMITER_REGEX))
+        return Keys.DELIMITER_PATTERN.splitAsStream(config)
                 .map(String::trim)
                 .filter(Predicate.not(String::isBlank))
                 .collect(Collectors.toUnmodifiableSet());
