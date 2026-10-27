@@ -7,7 +7,7 @@ plugins {
 description = "ContentGrid configuration discovery: Kubernetes discovery"
 
 dependencies {
-    internalPlatform platform('org.springframework.cloud:spring-cloud-dependencies:2025.1.1')
+    internalPlatform platform('org.springframework.cloud:spring-cloud-dependencies:2025.1.3')
 
     api project(':contentgrid-configuration-api')
 
