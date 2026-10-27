@@ -3,6 +3,10 @@ plugins {
 }
 
 allprojects {
+    repositories {
+        mavenCentral()
+    }
+
     pluginManager.withPlugin('java') {
         // Opts in to the conventions plugin's Spotless defaults (removeUnusedImports()).
         apply plugin: 'com.diffplug.spotless'
@@ -34,10 +38,6 @@ allprojects {
             }
             withSourcesJar()
             withJavadocJar()
-        }
-
-        repositories {
-            mavenCentral()
         }
 
         testing {
