@@ -6,7 +6,6 @@ import com.contentgrid.configuration.api.observable.Observable.UpdateEvent;
 import com.contentgrid.configuration.api.observable.Observable.UpdateType;
 import com.contentgrid.configuration.api.observable.Publisher;
 import com.contentgrid.configuration.api.test.ObservableUtils;
-import java.util.Arrays;
 import java.util.Map;
 import java.util.Set;
 import org.junit.jupiter.api.Test;
@@ -89,7 +88,7 @@ class ConcurrentLookupTest {
 
         map.add("foo");
         map.add("bar");
-        var letterLookup = map.createMultiLookup(str -> Arrays.stream(str.split("")));
+        var letterLookup = map.createMultiLookup(str -> str.codePoints().mapToObj(Character::toString));
         map.add("foobar");
         map.add("baz");
 
