@@ -11,8 +11,10 @@ import java.util.HashSet;
 import java.util.Set;
 import java.util.function.Function;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 
 @RequiredArgsConstructor
+@Slf4j
 public class KubernetesInformerObservableFactory implements AutoCloseable {
     private final KubernetesClient kubernetesClient;
     private final Duration resyncInterval;
@@ -35,7 +37,12 @@ public class KubernetesInformerObservableFactory implements AutoCloseable {
 
         informer.addEventHandler(observableEventHandler);
 
-        informer.run();
+        try {
+            informer.run();
+        } catch (Exception e) {
+            log.error("Failed to start Kubernetes informer '{}'", informer, e);
+            throw e;
+        }
 
         return () -> {
             return observableEventHandler.observe()
